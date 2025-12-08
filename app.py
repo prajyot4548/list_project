@@ -14,6 +14,10 @@ def login_page():
     return send_from_directory("static", "index.html")
 
 
+@app.route("/home")
+def home_page():
+    return send_from_directory("static", "home.html")
+
 # -----------------------------
 # DATABASE CONNECTION (LOCAL + DEPLOY)
 # -----------------------------
