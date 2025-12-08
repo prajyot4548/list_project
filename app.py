@@ -57,7 +57,7 @@ def get_solution():
         db = get_db()
         cursor = db.cursor(dictionary=True)
 
-        sql = "SELECT * FROM `copy of supp_data - copy` WHERE 1=1"
+        sql = "SELECT * FROM support_data WHERE 1=1"
         params = []
 
         if problem:
