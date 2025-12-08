@@ -7,7 +7,7 @@ import traceback
 import re
 
 app = Flask(__name__, static_folder="static")
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/")
 def login_page():
@@ -23,10 +23,10 @@ def home_page():
 # -----------------------------
 def get_db():
     return mysql.connector.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        user=os.environ.get("DB_USER", "root"),
-        password=os.environ.get("DB_PASSWORD", "prajyot4548"),
-        database=os.environ.get("DB_NAME", "solutions"),
+        host=os.environ.get("DB_HOST"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASSWORD"),
+        database=os.environ.get("DB_NAME"),
         port=int(os.environ.get("DB_PORT", 3306))
     )
 
