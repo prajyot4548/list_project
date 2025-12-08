@@ -26,7 +26,7 @@ def get_db():
         host=os.environ.get("DB_HOST"),
         user=os.environ.get("DB_USER"),
         password=os.environ.get("DB_PASSWORD"),
-        
+
         database=os.environ.get("DB_NAME"),
         port=int(os.environ.get("DB_PORT"))
     )
@@ -94,6 +94,19 @@ def get_solution():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+
+
+@app.route("/test-db")
+def test_db():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        return {"message": "Database Connected Successfully!"}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
 
 
 # -----------------------------
