@@ -42,7 +42,7 @@ def clean_problem_text(text):
     return cleaned
 
 
-@app.route("/api/tickets/copy of supp_data - copy", methods=["GET"])
+@app.route("/api/tickets/search", methods=["GET"])
 def get_solution():
     try:
         problem = request.args.get("problem", "").strip()

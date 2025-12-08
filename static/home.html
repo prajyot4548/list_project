@@ -1097,7 +1097,7 @@ addFilter("ticketId", filters.ticketId);
      const API_BASE = "https://list-project-16.onrender.com";
 
 const response = await fetch(
-  `${API_BASE}/api/tickets/copy of supp_data - copy?${params.toString()}`,
+`${API_BASE}/api/tickets/search?${params.toString()}`,
   { method: "GET" }
 );
 
