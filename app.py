@@ -52,6 +52,13 @@ def get_solution():
         fromDate = request.args.get("fromDate", "").strip()
         toDate = request.args.get("toDate", "").strip()
 
+        ticketId = request.args.get("ticketId", "").strip()
+
+        if ticketId:
+           sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
+           params.append(ticketId.replace(",", ""))
+
+
         if problem:
             problem = clean_problem_text(problem)
 
