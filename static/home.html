@@ -1246,7 +1246,7 @@ async function fetchTicketIdDirect(ticketId) {
     solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
 
     try {
-const response = await fetch(`${API_BASE}/api/tickets/copy of supp_data - copy?TICKET_ID=${ticketId}`);
+const response = await fetch(`${API_BASE}/api/tickets/search?ticketId=${ticketId}`);
 
         if (!response.ok) throw new Error("Server error");
 
