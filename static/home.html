@@ -1834,12 +1834,14 @@ function makeLinksClickable(text) {
 
 
 
-
-
 function logoutUser() {
-    localStorage.removeItem("loggedUser");   // Clear login
-    window.location.href = "/";              // Go to index page
+    // Remove project login
+    localStorage.removeItem("loggedUser");
+
+    // ⭐ Redirect back to SmartAssist main screen
+    window.location.href = "http://172.100.30.3:8080/apex/f?p=100:1:0";
 }
+
 
 
 
