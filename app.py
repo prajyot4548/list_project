@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import mysql.connector
-from mysql.connector import pooling
 from datetime import datetime
 import traceback
 import re
@@ -10,39 +9,40 @@ import re
 app = Flask(__name__, static_folder="static")
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# -----------------------------
-# SUPERFAST DB CONNECTION POOL
-# -----------------------------
-dbconfig = {
-    "host": os.environ.get("DB_HOST"),
-    "user": os.environ.get("DB_USER"),
-    "password": os.environ.get("DB_PASSWORD"),
-    "database": os.environ.get("DB_NAME"),
-    "port": int(os.environ.get("DB_PORT")),
-}
 
-connection_pool = pooling.MySQLConnectionPool(
-    pool_name="mypool",
-    pool_size=10,
-    pool_reset_session=True,
-    **dbconfig
-)
+@app.route("/")
+def login_page():
+    return send_from_directory("static", "index.html")
 
+
+@app.route("/home")
+def home_page():
+    return send_from_directory("static", "home.html")
+
+
+# -----------------------------
+# DATABASE CONNECTION (LOCAL + DEPLOY)
+# -----------------------------
 def get_db():
-    return connection_pool.get_connection()
+    return mysql.connector.connect(
+        host=os.environ.get("DB_HOST"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASSWORD"),
+        database=os.environ.get("DB_NAME"),
+        port=int(os.environ.get("DB_PORT"))
+    )
 
-# CLEAN INPUT
+
+# CLEAN ONLY EXTREME CHARACTERS – DO NOT REMOVE USEFUL WORDS
 def clean_problem_text(text):
     if not text:
         return ""
+
     cleaned = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
     cleaned = " ".join(cleaned.split()).strip().lower()
     return cleaned
 
 
-# -----------------------------
-# SUPERFAST SEARCH API
-# -----------------------------
 @app.route("/api/tickets/search", methods=["GET"])
 def get_solution():
     try:
@@ -55,62 +55,46 @@ def get_solution():
         if problem:
             problem = clean_problem_text(problem)
 
-        conn = get_db()
-        cursor = conn.cursor(dictionary=True)
+        db = get_db()
+        cursor = db.cursor(dictionary=True)
 
-        # 🔥 SUPERFAST SELECT — NO STR_TO_DATE
-        sql = """
-            SELECT CALL_ID, CALL_DATE, CALL_DETAILS, SOLUTION_DETAILS,
-                   PRODUCT, PROGRAM, QUEUE, BANK_NAME, TICKET_ID
-            FROM support_data
-            WHERE 1=1
-        """
+        sql = "SELECT * FROM support_data WHERE 1=1"
         params = []
 
-        # --------- 🔥 VERY FAST TEXT SEARCH ---------
         if problem:
             words = problem.split(" ")
-
-            # 🌟 STARTS WITH (very fast index usage)
-            sql += " AND LOWER(CALL_DETAILS) LIKE %s"
-            params.append(problem + "%")
-
-            # 🌟 Also match anywhere (same output, faster than before)
             for w in words:
                 if len(w) >= 3:
-                    sql += " AND CALL_DETAILS LIKE %s"
-                    params.append("%" + w + "%")
+                    sql += " AND LOWER(CALL_DETAILS) LIKE %s"
+                    params.append(f"%{w}%")
 
-        # --------- PRODUCT ---------
         if product:
-            sql += " AND PRODUCT LIKE %s"
-            params.append("%" + product + "%")
+            sql += " AND LOWER(PRODUCT) LIKE LOWER(%s)"
+            params.append(f"%{product}%")
 
-        # --------- PROGRAM ---------
         if program:
             sql += " AND PROGRAM = %s"
             params.append(program)
 
-        # --------- DATE RANGE (FASTER) ---------
         if fromDate and toDate:
-            sql += " AND CALL_DATE >= %s AND CALL_DATE <= %s"
+            sql += """
+                AND STR_TO_DATE(CALL_DATE, '%m-%d-%Y')
+                BETWEEN STR_TO_DATE(%s, '%Y-%m-%d')
+                AND STR_TO_DATE(%s, '%Y-%m-%d')
+            """
             params.extend([fromDate, toDate])
-
-        # FORCE INDEX (makes search MUCH faster)
-        sql = sql.replace("FROM support_data", "FROM support_data FORCE INDEX(PRIMARY)")
 
         cursor.execute(sql, params)
         rows = cursor.fetchall()
 
         cursor.close()
-        conn.close()
+        db.close()
 
         return jsonify(rows)
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
 
 
 @app.route("/test-db")
@@ -124,6 +108,9 @@ def test_db():
         return {"error": str(e)}, 500
 
 
+# -----------------------------
+# DEPLOYMENT-FRIENDLY RUNNER
+# -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
