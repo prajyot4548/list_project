@@ -51,13 +51,7 @@ def get_solution():
         program = request.args.get("program", "").strip()
         fromDate = request.args.get("fromDate", "").strip()
         toDate = request.args.get("toDate", "").strip()
-
         ticketId = request.args.get("ticketId", "").strip()
-
-        if ticketId:
-           sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
-           params.append(ticketId.replace(",", ""))
-
 
         if problem:
             problem = clean_problem_text(problem)
@@ -68,6 +62,12 @@ def get_solution():
         sql = "SELECT * FROM support_data WHERE 1=1"
         params = []
 
+        # -------------------- TICKET ID FILTER FIX --------------------
+        if ticketId:
+            sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
+            params.append(ticketId.replace(",", ""))
+
+        # -------------------- PROBLEM FILTER --------------------
         if problem:
             words = problem.split(" ")
             for w in words:
@@ -75,14 +75,17 @@ def get_solution():
                     sql += " AND LOWER(CALL_DETAILS) LIKE %s"
                     params.append(f"%{w}%")
 
+        # -------------------- PRODUCT FILTER --------------------
         if product:
             sql += " AND LOWER(PRODUCT) LIKE LOWER(%s)"
             params.append(f"%{product}%")
 
+        # -------------------- PROGRAM FILTER --------------------
         if program:
             sql += " AND PROGRAM = %s"
             params.append(program)
 
+        # -------------------- DATE FILTER --------------------
         if fromDate and toDate:
             sql += """
                 AND STR_TO_DATE(CALL_DATE, '%m-%d-%Y')
@@ -102,17 +105,6 @@ def get_solution():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
-
-@app.route("/test-db")
-def test_db():
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1")
-        return {"message": "Database Connected Successfully!"}
-    except Exception as e:
-        return {"error": str(e)}, 500
 
 
 # -----------------------------
