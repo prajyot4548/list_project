@@ -670,7 +670,7 @@ chat-body p.bot {
     <nav>
       <ul>
         <li><a href="home.html">Home</a></li>
-        <li><a href="index.html">Logout</a>
+<li><a href="#" onclick="logoutUser()">Logout</a></li>
 </li>
         
       </ul>
@@ -1833,6 +1833,13 @@ function makeLinksClickable(text) {
 
 
 
+
+
+
+function logoutUser() {
+    localStorage.removeItem("loggedUser");   // Clear login
+    window.location.href = "/";              // Go to index page
+}
 
 
 
