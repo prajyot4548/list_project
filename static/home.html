@@ -1148,10 +1148,17 @@ if (filters.problem) {
       }
       // ✅ Ticket ID filter apply here
 if (filters.ticketId) {
-  tickets = tickets.filter(t => 
-    String(t.TICKET_ID || "").trim() === filters.ticketId
-  );
+  let userId = filters.ticketId.replace(/,/g, "").trim();
+
+  tickets = tickets.filter(t => {
+    let dbId = String(t.TICKET_ID || "")
+                     .replace(/,/g, "")
+                     .trim();
+
+    return dbId === userId;
+  });
 }
+
 
 
       const from = filters.fromDate ? new Date(filters.fromDate) : null;
