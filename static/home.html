@@ -1220,7 +1220,7 @@ if (filtered.length === 0) {
     `;
 
     // Even no match → still show full DB sorted by relevance
-    lastTickets = tickets.slice(0, 20); // top 20 similar
+    lastTickets = tickets.slice(0, 50); // top 20 similar
 } else {
     lastTickets = filtered;
 }
