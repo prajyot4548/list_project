@@ -1235,30 +1235,31 @@ highlightFirstTicket();
   }
 
 
-async function fetchSolutions(problemText, filters) {
-  try {
-    const params = new URLSearchParams();
+async function fetchTicketIdDirect(ticketId) {
+    solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
 
-    if (filters.problem) params.append("problem", filters.problem);
-    if (filters.ticketId) params.append("ticketId", filters.ticketId);
-    if (filters.product) params.append("product", filters.product);
-    if (filters.program) params.append("program", filters.program);
-    if (filters.fromDate) params.append("fromDate", filters.fromDate);
-    if (filters.toDate) params.append("toDate", filters.toDate);
+    try {
+const response = await fetch(`${API_BASE}/api/tickets/support_data?TICKET_ID=${ticketId}`);
 
-    solutionBox.innerHTML = "⏳ Searching...";
+        if (!response.ok) throw new Error("Server error");
 
-    const res = await fetch(`${API_BASE}/api/tickets/search?${params}`);
-    if (!res.ok) throw new Error("Server error");
+        const data = await response.json();
 
-    lastTickets = await res.json();
-    renderTickets(lastTickets);
+        if (!data || data.length === 0) {
+            solutionBox.innerHTML = `<p style="color:red;">❌ No record found for Ticket ID: <b>${ticketId}</b></p>`;
+            return;
+        }
 
-  } catch (err) {
-    console.error(err);
-    solutionBox.innerHTML = "❌ Backend error";
-  }
+        lastTickets = data;
+        renderTickets(data, `Ticket ID: ${ticketId}`);
+
+        highlightFirstTicket();
+    } catch (err) {
+        solutionBox.innerHTML = `<p style="color:red;">⚠ Unable to fetch record.</p>`;
+        console.error(err);
+    }
 }
+
 
 
 
