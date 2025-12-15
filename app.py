@@ -24,7 +24,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 # -----------------------------
 @app.route("/")
 def login_page():
-    return send_from_directory("static", "login.html")
+    return send_from_directory("static", "index.html")
 
 @app.route("/home")
 def home_page():
