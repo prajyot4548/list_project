@@ -62,43 +62,49 @@ def search_tickets():
         sql = "SELECT * FROM solutions.support_data WHERE 1=1"
         params = []
 
-        # ---- EXACT MATCH ----
         if ticketId:
-            sql += " AND TICKET_ID = %s"
+            sql += " AND TRIM(TICKET_ID) = %s"
             params.append(ticketId)
 
-        # ---- BANK ----
         if bankName:
             sql += " AND LOWER(BANK_NAME) LIKE %s"
             params.append(f"%{bankName.lower()}%")
 
-        # ---- PRODUCT ----
         if product:
             sql += " AND LOWER(PRODUCT) LIKE %s"
             params.append(f"%{product.lower()}%")
 
-        # ---- PROGRAM ----
         if program:
             sql += " AND PROGRAM = %s"
             params.append(program)
 
-        # ---- PROBLEM WORD MATCH ----
         if problem:
             for w in problem.split():
                 if len(w) >= 3:
                     sql += " AND LOWER(CALL_DETAILS) LIKE %s"
                     params.append(f"%{w}%")
 
-        # ---- DATE RANGE ----
-        if fromDate and toDate:
-            sql += """
-                AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y')
-                BETWEEN STR_TO_DATE(%s,'%Y-%m-%d')
-                AND STR_TO_DATE(%s,'%Y-%m-%d')
-            """
-            params.extend([fromDate, toDate])
+        if fromDate:
+            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') >= STR_TO_DATE(%s,'%Y-%m-%d')"
+            params.append(fromDate)
 
-            sql += " ORDER BY `CALL_ID` DESC LIMIT 500"
+        if toDate:
+            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') <= STR_TO_DATE(%s,'%Y-%m-%d')"
+            params.append(toDate)
+
+
+
+
+
+        # ✅ FIXED ORDER BY
+# ---- ORDER & LIMIT (SAFE) ----
+            if params:
+               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
+            else:
+               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 100"
+     
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
 
         cursor.execute(sql, params)
         rows = cursor.fetchall()
@@ -112,17 +118,6 @@ def search_tickets():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# -----------------------------
-# TEST DB
-# -----------------------------
-@app.route("/test-db")
-def test_db():
-    try:
-        conn = get_db()
-        conn.close()
-        return {"status": "DB CONNECTED"}
-    except Exception as e:
-        return {"error": str(e)}, 500
 
 # -----------------------------
 # RUN (RENDER SAFE)
