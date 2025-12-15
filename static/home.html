@@ -1241,7 +1241,8 @@ highlightFirstTicket();
 
     } catch (err) {
       console.error("❌ Fetch Error:", err);
-      solutionBox.innerHTML = `<p style="color:red;">⚠️ Could not connect to backend (port 8080).</p>`;
+solutionBox.innerHTML =
+  `<p style="color:red;">⚠️ Server error. Please check logs.</p>`;
     }
   }
 

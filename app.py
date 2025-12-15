@@ -59,7 +59,7 @@ def search_tickets():
         db = get_db()
         cursor = db.cursor(dictionary=True)
 
-        sql = "SELECT * FROM support_data WHERE 1=1"
+        sql = "SELECT * FROM solutions.support_data WHERE 1=1"
         params = []
 
         # ---- EXACT MATCH ----
@@ -98,7 +98,7 @@ def search_tickets():
             """
             params.extend([fromDate, toDate])
 
-        sql += " ORDER BY CALL_ID DESC LIMIT 500"
+            sql += " ORDER BY `CALL_ID` DESC LIMIT 500"
 
         cursor.execute(sql, params)
         rows = cursor.fetchall()
