@@ -1,78 +1,70 @@
-
-import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import oracledb
+import os
 import re
 import traceback
 
-# -----------------------------
-# ORACLE CLIENT INIT (DEPLOY SAFE)
-# -----------------------------
-# For Render / Linux / Cloud
-# Set ORACLE_CLIENT_LIB in environment if needed
-oracle_lib = os.environ.get("ORACLE_CLIENT_LIB")
-if oracle_lib and not oracledb.is_thin_mode():
-    oracledb.init_oracle_client(lib_dir=oracle_lib)
+# =====================================================
+# PATH SETUP
+# =====================================================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
+# =====================================================
+# FLASK APP
+# =====================================================
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="")
+CORS(app)
 
-app = Flask(__name__, static_folder="static")
-CORS(app, resources={r"/*": {"origins": "*"}})
-
-# -----------------------------
-# SERVE PAGES
-# -----------------------------
-@app.route("/")
-def login_page():
-    return send_from_directory("static", "index.html")
-
-@app.route("/home")
-def home_page():
-    return send_from_directory("static", "home.html")
-
-# -----------------------------
-# ORACLE CONNECTION POOL (DEPLOY FRIENDLY)
-# -----------------------------
+# =====================================================
+# ORACLE CONNECTION POOL (FAST + STABLE)
+# =====================================================
 pool = oracledb.create_pool(
-    user=os.environ.get("ORACLE_USER"),
-    password=os.environ.get("ORACLE_PASSWORD"),
-    dsn=os.environ.get("ORACLE_DSN"),
+    user="SUPP_CALL",
+    password="SUPP_CALL",
+    dsn="172.100.30.3:1521/OFFICE",
     min=2,
-    max=5,
+    max=6,
     increment=1
 )
 
 def get_db():
     return pool.acquire()
 
-# -----------------------------
-# CLEAN USER INPUT
-# -----------------------------
-def clean_problem_text(text):
+# =====================================================
+# CLEAN SEARCH TEXT
+# =====================================================
+def clean_text(text):
     if not text:
         return ""
-    text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
-    return " ".join(text.split()).lower()
+    return re.sub(r"[^a-zA-Z0-9 ]", " ", text).lower().strip()
 
-# ============================================================
-# API : CALL DETAILS SEARCH (UNCHANGED LOGIC)
-# ============================================================
+# =====================================================
+# FRONTEND ROUTES
+# =====================================================
+@app.route("/")
+def login():
+    return send_from_directory(STATIC_DIR, "login.html")
+
+@app.route("/home")
+def home():
+    return send_from_directory(STATIC_DIR, "home.html")
+
+# =====================================================
+# API : FAST SEARCH
+# =====================================================
 @app.route("/api/tickets/CALL_DETAILS_VIEW", methods=["GET"])
-def get_from_call_details():
+def fetch_tickets():
     try:
-        problem   = clean_problem_text(request.args.get("problem", ""))
-        product   = request.args.get("product", "").strip()
-        program   = request.args.get("program", "").strip()
-        fromDate  = request.args.get("fromDate", "").strip()
-        toDate    = request.args.get("toDate", "").strip()
-        bankName  = request.args.get("bankName", "").strip()
-        ticketId  = request.args.get("ticketId", "").strip()
-        solvedBy  = request.args.get("SOLVED_BY", "").strip()
-        callId    = request.args.get("callId", "").strip()
+        args = request.args
+        problem  = clean_text(args.get("problem", ""))
+        ticketId = args.get("ticketId")
+        callId   = args.get("callId")
 
         db = get_db()
-        cursor = db.cursor()
-        cursor.arraysize = 200
+        cur = db.cursor()
+        cur.arraysize = 300
 
         sql = """
         SELECT *
@@ -83,67 +75,35 @@ def get_from_call_details():
         """
         params = {}
 
-        # ---------------- MULTI WORD SEARCH ----------------
-        if problem:
-            words = problem.split()
-            idx = 0
-            for w in words[:4]:
-                if len(w) >= 3:
-                    sql += f"""
-                        AND (
-                            LOWER(CALL_DETAILS) LIKE :w{idx}
-                            OR LOWER(SOLUTION_DETAILS) LIKE :w{idx}
-                        )
-                    """
-                    params[f"w{idx}"] = f"%{w}%"
-                    idx += 1
-
-        # ---------------- FILTERS ----------------
-        if product:
-            sql += " AND LOWER(PRODUCT) LIKE LOWER(:product)"
-            params["product"] = f"%{product}%"
-
-        if program:
-            sql += " AND PROGRAM = :program"
-            params["program"] = program
-
-        if bankName:
-            sql += " AND LOWER(BANKNAME) LIKE LOWER(:bankName)"
-            params["bankName"] = f"%{bankName}%"
-
+        # EXACT SEARCH (FASTEST)
         if ticketId:
             sql += " AND TICKET_ID = :ticketId"
             params["ticketId"] = ticketId
-
-        if solvedBy:
-            sql += " AND LOWER(SOLVED_BY) LIKE LOWER(:solvedBy)"
-            params["solvedBy"] = f"%{solvedBy}%"
 
         if callId:
             sql += " AND CALL_ID = :callId"
             params["callId"] = callId
 
-        if fromDate and toDate:
-            sql += """
-            AND CLOSED_DATE BETWEEN
-                TO_DATE(:fromDate, 'YYYY-MM-DD')
-            AND TO_DATE(:toDate, 'YYYY-MM-DD') + 1
-            """
-            params["fromDate"] = fromDate
-            params["toDate"] = toDate
+        # TEXT SEARCH (LIMITED WORDS)
+        if problem and not problem.isdigit():
+            words = problem.split()[:3]
+            for i, w in enumerate(words):
+                sql += f"""
+                AND (
+                    LOWER(CALL_DETAILS) LIKE :w{i}
+                    OR LOWER(SOLUTION_DETAILS) LIKE :w{i}
+                )
+                """
+                params[f"w{i}"] = f"%{w}%"
 
-        sql += """
-        )
-        WHERE rn <= 2000
-        """
+        sql += ") WHERE rn <= 1000"
 
-        cursor.execute(sql, params)
+        cur.execute(sql, params)
+        rows = cur.fetchall()
+        cols = [c[0] for c in cur.description]
+        data = [dict(zip(cols, r)) for r in rows]
 
-        rows = cursor.fetchall()
-        columns = [c[0] for c in cursor.description]
-        data = [dict(zip(columns, row)) for row in rows]
-
-        cursor.close()
+        cur.close()
         db.close()
 
         return jsonify(data)
@@ -152,10 +112,9 @@ def get_from_call_details():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# -----------------------------
-# DEPLOYMENT RUNNER
-# -----------------------------
+# =====================================================
+# RUN SERVER
+# =====================================================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    print("🔥 Oracle Flask API running (DEPLOY MODE)")
-    app.run(host="0.0.0.0", port=port)
+    print("🔥 Server running at http://127.0.0.1:8080")
+    app.run(host="0.0.0.0", port=8080, debug=True)
