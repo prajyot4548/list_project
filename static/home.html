@@ -8,262 +8,661 @@
   <!-- ALL CSS MERGED INSIDE STYLE (OPTION A) -->
   <style>
 
-  /* =====================================================
-     style.css – EXACT MATCH OF YOUR DESIGN
-     • Google Font: Roboto
-     • Red-Orange gradients (ff6a00 → ee0979)
-     • Pill buttons, smooth animations
-     • Filter modal, solution cards, chatbot
-     • 100% responsive
-     ===================================================== */
+/* =====================================================
+   style.css – EXACT MATCH OF YOUR DESIGN
+   • Google Font: Roboto
+   • Red-Orange gradients (ff6a00 → ee0979)
+   • Pill buttons, smooth animations
+   • Filter modal, solution cards, chatbot
+   • 100% responsive
+   ===================================================== */
 
-  /* ---------------- IMPORT FONT ---------------- */
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+/* ---------------- IMPORT FONT ---------------- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-  /* ---------------- RESET ---------------- */
-  *,
-  *::before,
-  *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+/* ---------------- RESET ---------------- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  /* ---------------- BODY ---------------- */
-  body {
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
-    min-height: 100vh;
-  }
+/* ---------------- BODY ---------------- */
+body {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+  min-height: 100vh;
+}
 
-  /* ---------------- LOGIN PAGE ---------------- */
-  .login-body {
-    margin: 0;
-    height: 100vh;
-    width: 100%;
-    background: url("background.png") no-repeat center center / cover;
+/* ---------------- LOGIN PAGE ---------------- */
+.login-body {
+  margin: 0;
+  height: 100vh;
+  width: 100%;
+  background: url("background.png") no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.login-container {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  border-radius: 15px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+  color: white;
+}
+
+.login-container h1 {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, #ff6a00, #ee0979);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: linear-gradient(90deg, #ee0979, #ff6a00);
+}
+
+.footer-text {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+/* ---------------- HOME PAGE ---------------- */
+.home-body {
+  background: #f9f9f9;
+  color: #333;
+  min-height: 100vh;
+}
+
+.navbar {
+  background: #2c3e50;
+  padding: 15px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.navbar ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: opacity .2s;
+}
+
+.navbar ul li a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.hero {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  color: white;
+  border-radius: 0 0 40px 40px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 40px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  margin-top: 30px;
+  background: #2c3e50;
+  color: white;
+  border-radius: 20px 20px 0 0;
+  font-size: 0.9rem;
+}
+
+/* ---------------- FILTER BUTTONS ---------------- */
+#toggleFilter,
+#toggleDisplayField {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4A90E2 0%, #50C878 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.2);
+}
+
+#toggleFilter:hover,
+#toggleDisplayField:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
+  background: linear-gradient(135deg, #357ABD 0%, #3DAF6A 100%);
+}
+
+/* ---------------- FILTER MODAL ---------------- */
+.filter-section,
+.field-filter-section {
+  margin: 20px auto;
+  width: 90%;
+  max-width: 800px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-section h2,
+.field-filter-section h2 {
+  margin-bottom: 25px;
+  color: #4A90E2;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+#filterForm,
+#fieldFilterForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* Filter-section checkboxes */
+.filter-group.checkbox-group {
+  grid-column: 1 / -1;
+}
+
+/* Compact + Centered Checkbox Style (Your original) */
+.checkbox-group {
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    justify-content: center;     /* center all checkboxes */
+    gap: 6px 18px;               /* spacing between checkboxes */
+    
+    /* UPDATED SPACING */
+    margin-top: 15px !important;      /* gap from “Solution” title */
+    margin-bottom: 25px !important;   /* gap before the table */
+    
     align-items: center;
-    flex-direction: column;
-    font-family: "Segoe UI", sans-serif;
-  }
+}
 
-  .login-container {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 30px;
-    border-radius: 15px;
-    width: 350px;
-    text-align: center;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
-    color: white;
-  }
-
-  .login-container h1 {
-    margin-bottom: 20px;
-    font-size: 22px;
-  }
-
-  .input-group {
-    text-align: left;
-    margin-bottom: 15px;
-  }
-
-  .input-group label {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  .input-group input {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    outline: none;
-  }
-
-  .btn {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(90deg, #ff6a00, #ee0979);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .btn:hover {
-    background: linear-gradient(90deg, #ee0979, #ff6a00);
-  }
-
-  .footer-text {
-    margin-top: 15px;
-    font-size: 13px;
-    color: #ccc;
-  }
-
-  /* ---------------- HOME PAGE ---------------- */
-  .home-body {
-    background: #f9f9f9;
-    color: #333;
-    min-height: 100vh;
-  }
-
-  .navbar {
-    background: #2c3e50;
-    padding: 15px 50px;
+.checkbox-group label {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-  }
-
-  .logo {
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.4rem;
-  }
-
-  .navbar ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-  }
-
-  .navbar ul li a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1rem;
-    transition: opacity .2s;
-  }
-
-  .navbar ul li a:hover {
-    opacity: 0.8;
-    text-decoration: underline;
-  }
-
-  .hero {
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #3498db, #2c3e50);
-    color: white;
-    border-radius: 0 0 40px 40px;
-    text-align: center;
-  }
-
-  .hero h1 {
-    font-size: 40px;
-    margin-bottom: 20px;
-    font-weight: 700;
-  }
-
-  .hero p {
-    font-size: 18px;
-    margin-bottom: 30px;
-    opacity: 0.9;
-  }
-
-  footer {
-    text-align: center;
-    padding: 15px;
-    margin-top: 30px;
-    background: #2c3e50;
-    color: white;
-    border-radius: 20px 20px 0 0;
-    font-size: 0.9rem;
-  }
-
-  /* ---------------- FILTER BUTTONS ---------------- */
-  #toggleFilter,
-  #toggleDisplayField {
-    display: block;
-    margin: 20px auto;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #4A90E2 0%, #50C878 100%);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 16px;
-    font-weight: 500;
+    gap: 6px;                    /* checkbox + text spacing */
+    font-size: 14px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(74, 144, 226, 0.2);
-  }
+    padding: 2px 8px;            /* neat compact look */
+}
 
-  #toggleFilter:hover,
-  #toggleDisplayField:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
-    background: linear-gradient(135deg, #357ABD 0%, #3DAF6A 100%);
-  }
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #4A90E2;
+}
 
-  /* ---------------- FILTER MODAL ---------------- */
-  .filter-section,
-  .field-filter-section {
-    margin: 20px auto;
-    width: 90%;
-    max-width: 800px;
-    background: #fff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    animation: slideInDown 0.5s ease-out;
-  }
+.filter-group label {
+  font-weight: 500;
+  color: #555;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-  @keyframes slideInDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+.filter-group select,
+.filter-group input {
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fafbfc;
+  transition: all 0.3s ease;
+  color: #333;
+  min-height: 48px;
+}
 
-  /* ---------------- PROBLEM & SOLUTION ---------------- */
-  .problem-section,
-  .solution-section {
-    margin: 40px auto;
-    width: 80%;
-    max-width: 1100px;
-    background: #fff;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  }
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: #4A90E2;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  transform: translateY(-1px);
+}
 
-  /* ---------------- RESPONSIVE ---------------- */
-  @media (max-width: 768px) {
-    .navbar {
-      padding: 15px 20px;
-      flex-direction: column;
-      gap: 10px;
-    }
+.filter-group select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+  padding-right: 40px;
+  appearance: none;
+}
 
-    .hero h1 {
-      font-size: 32px;
-    }
+#filterForm button,
+#fieldFilterForm button {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 10px;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #4A90E2 0%, #50C878 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.2);
+}
 
-    .problem-section,
-    .solution-section {
-      width: 95%;
-    }
+#filterForm button:hover,
+#fieldFilterForm button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
+  background: linear-gradient(135deg, #357ABD 0%, #3DAF6A 100%);
+}
 
-    .filter-section,
-    .field-filter-section {
-      width: 95%;
-      padding: 20px;
-    }
-  }
+#filterForm button[type="button"] {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  margin-left: 10px;
+}
+
+#filterForm button[type="button"]:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+}
+
+/* ---------------- PROBLEM & SOLUTION ---------------- */
+.problem-section,
+.solution-section {
+  margin: 40px auto;
+  width: 80%;
+  max-width: 1100px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* Heading (Add extra bottom gap here) */
+.problem-section h2,
+.solution-section h2 {
+  margin-bottom: 30px !important;   /* ⬅ increased gap */
+  color: #9bd3f1;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+/* Extra spacing between heading & checkbox group */
+.solution-section .checkbox-group {
+  margin-top: 15px !important;       /* ⬅ gap below “Solution” */
+  margin-bottom: 25px !important;    /* ⬅ gap above table */
+}
+
+/* Problem Input */
+#problemInput {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 15px;
+  resize: vertical;
+}
+
+#problemInput:focus {
+  outline: none;
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* ---------------- SOLUTION BOX (TABLE VIEW) ---------------- */
+#solutionBox {
+  min-height: 80px;
+  padding: 15px;
+  background: #f3f7fa;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
+/* Table look */
+#solutionBox table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+#solutionBox th,
+#solutionBox td {
+  border: 1px solid #d0d7de;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+#solutionBox thead {
+  background: #e9f2ff;
+}
+
+#solutionBox th {
+  font-weight: 600;
+  text-align: left;
+}
+
+/* table look */
+#solutionBox table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+#solutionBox th,
+#solutionBox td {
+  border: 1px solid #d0d7de;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+#solutionBox thead {
+  background: #e9f2ff;
+}
+
+#solutionBox th {
+  font-weight: 600;
+  text-align: left;
+}
+
+/* ---------------- CHATBOT ---------------- */
+.chatbot-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #4A90E2 0%, #50C878 100%);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(74,144,226,.3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.chatbot-btn:hover {
+  transform: translateY(-4px) scale(1.08);
+  box-shadow: 0 12px 28px rgba(74,144,226,.4);
+}
+
+.chatbot-btn svg {
+  width: 34px;
+  height: 34px;
+  fill: #fff;
+}
+
+.chat-window {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  width: 340px;
+  height: 480px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  display: none;
+  flex-direction: column;
+  z-index: 999;
+  border: 1px solid #ddd;
+}
+.chat-header {
+  background: #0066ff;
+  color: #fff;
+  padding: 12px 16px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.close-chat {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+
+.chat-body p {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  max-width: 85%;
+  word-wrap: break-word;
+  font-size: 14.5px;
+}
+
+.chat-body p.user {
+  background: #0066ff;
+  color: #fff;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+chat-body p.bot {
+  background: #e9ecef;
+  color: #212529;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-input {
+  display: flex;
+  padding: 10px;
+  background: #fff;
+  border-top: 1px solid #dee2e6;
+  gap: 8px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ced4da;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.chat-input input:focus {
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 2px rgba(74,144,226,.2);
+}
+
+.chat-input button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1rem;
+}
+
+#sendBtn { background: #28a745; }
+#voiceBtn { background: #dc3545; }
+
+/* ---------------- HIDDEN CLASS ---------------- */
+.hidden { display: none; }
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 768px) {
+  .navbar { padding: 15px 20px; flex-direction: column; gap: 10px; }
+  .hero h1 { font-size: 32px; }
+  .problem-section, .solution-section { width: 95%; }
+  .filter-section, .field-filter-section { width: 95%; padding: 20px; }
+  #filterForm, #fieldFilterForm { grid-template-columns: 1fr; }
+  .chat-window { width: 300px; height: 420px; right: 10px; bottom: 80px; }
+}
+
+/* ---------------- CLAMP TEXT FOR TABLE ---------------- */
+.clamp3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+  word-break: break-word;
+  max-height: 70px;
+}
+
+.expanded-text {
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.see-more-btn {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+/* ---------------- TABLE ROW HIGHLIGHT ---------------- */
+.ticket-row:hover {
+  background: #f0f8ff;
+}
+
+.ticket-active {
+  background: #d6f5d6 !important;
+  border-left: 4px solid #28a745;
+}
+
+/* ---------------- TICKET CARD HIGHLIGHT (NOT USED, SAFE TO KEEP) ---------------- */
+.ticket-card {
+  transition: all 0.2s ease;
+}
+
+.ticket-card.ticket-active {
+  border: 2px solid #28a745 !important;
+  box-shadow: 0 0 10px rgba(40,167,69,0.4);
+}
+/* TOP BUTTON – MOVED TO TOP RIGHT */
+#topBtn {
+  display: none;
+  position: fixed;
+  top: 20px;           /* ⬅ moved from bottom to top */
+  right: 20px;         /* stays right side */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: #4A90E2;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  z-index: 2000;       /* ensures button stays above all UI */
+}
+
 
   </style>
 </head>
-
 <body class="home-body">
 
   <header class="navbar">
@@ -271,19 +670,208 @@
     <nav>
       <ul>
         <li><a href="home.html">Home</a></li>
-        <li><a href="index.html">Logout</a></li>
+<li><a href="#" onclick="logoutUser()">Logout</a></li>
+</li>
+        
       </ul>
     </nav>
   </header>
 
   <section class="hero">
-    <img src="/static/List.png" class="logo" style="height:60px;">
-    <center>
+<img src="/static/List.png" class="logo" style="height:60px;">
+      <center>
       <h1>List Software Support Team</h1>
       <p>Submit your issue, and we’ll find the best solution for you.</p>
     </center>
   </section>
 
+  <button id="toggleFilter" class="btn">Filter Tickets</button>
+
+  <section id="filters" class="filter-section" style="display: none;">
+    <h2>Filter Tickets</h2>
+
+    <form id="filterForm">
+
+      <div class="filter-group">
+        <label for="programFilter">Program :</label>
+        <select id="programFilter" name="programFilter">
+          <option value="">All Programs</option>
+          <option value="ATM - 1 (P)">ATM - 1 (P)</option>
+          <option value="Admin - 2 (P)">Admin - 2 (P)</option>
+          <option value="Authority Managements - 3 (P)">Authority Managements - 3 (P)</option>
+          <option value="BCBF - 4 (P)">BCBF - 4 (P)</option>
+          <option value="BG - 5 (P)">BG - 5 (P)</option>
+          <option value="Backlog - 6 (P)">Backlog - 6 (P)</option>
+          <option value="Batch Processing - 7 (P)">Batch Processing - 7 (P)</option>
+          <option value="Bills - 8 (P)">Bills - 8 (P)</option>
+          <option value="Branch Interest Calculation - 9 (P)">Branch Interest Calculation - 9 (P)</option>
+          <option value="CRR/SLR - 10 (P)">CRR/SLR - 10 (P)</option>
+          <option value="Cheque Book - 11 (P)">Cheque Book - 11 (P)</option>
+          <option value="Cheque Book Management - 12 (P)">Cheque Book Management - 12 (P)</option>
+          <option value="Clearing - 13 (P)">Clearing - 13 (P)</option>
+          <option value="Counter - 14 (P)">Counter - 14 (P)</option>
+          <option value="Customer master - 48 (P)">Customer master - 48 (P)</option>
+          <option value="DEAF - 15 (P)">DEAF - 15 (P)</option>
+          <option value="Data Conversion - 16 (P)">Data Conversion - 16 (P)</option>
+          <option value="Database Maintenance - 52 (P)">Database Maintenance - 52 (P)</option>
+          <option value="Deaf - 17 (P)">Deaf - 17 (P)</option>
+          <option value="Delivery Channels - 18 (P)">Delivery Channels - 18 (P)</option>
+          <option value="Dual login auth. (2FA) - 54 (P)">Dual login auth. (2FA) - 54 (P)</option>
+          <option value="ECS - 19 (P)">ECS - 19 (P)</option>
+          <option value="FIR - 53 (P)">FIR - 53 (P)</option>
+          <option value="GST - 20 (P)">GST - 20 (P)</option>
+          <option value="Interest/Penalty - 21 (P)">Interest/Penalty - 21 (P)</option>
+          <option value="Inventory - 22 (P)">Inventory - 22 (P)</option>
+          <option value="Investments - 23 (P)">Investments - 23 (P)</option>
+          <option value="KYC - 24 (P)">KYC - 24 (P)</option>
+          <option value="Loan - 25 (P)">Loan - 25 (P)</option>
+          <option value="Loan Sanctioning - 26 (P)">Loan Sanctioning - 26 (P)</option>
+          <option value="Locker - 27 (P)">Locker - 27 (P)</option>
+          <option value="Membership Module - 28 (P)">Membership Module - 28 (P)</option>
+          <option value="Microfinance - 29 (P)">Microfinance - 29 (P)</option>
+          <option value="Mobile Banking - 30 (P)">Mobile Banking - 30 (P)</option>
+          <option value="NPA - 31 (P)">NPA - 31 (P)</option>
+          <option value="New Branch Add - 50 (P)">New Branch Add - 50 (P)</option>
+          <option value="ODFD/SI/FD Renewal - 32 (P)">ODFD/SI/FD Renewal - 32 (P)</option>
+          <option value="OTS - 33 (P)">OTS - 33 (P)</option>
+          <option value="PM Insurance - 34 (P)">PM Insurance - 34 (P)</option>
+          <option value="Payroll - 35 (P)">Payroll - 35 (P)</option>
+          <option value="Pigmi - 36 (P)">Pigmi - 36 (P)</option>
+          <option value="RTGS/NEFT - 37 (P)">RTGS/NEFT - 37 (P)</option>
+          <option value="RTGS/NEFT/IMPS - 38 (P)">RTGS/NEFT/IMPS - 38 (P)</option>
+          <option value="Reconciliation - 39 (P)">Reconciliation - 39 (P)</option>
+          <option value="Recurring - 40 (P)">Recurring - 40 (P)</option>
+          <option value="Remittances - 41 (P)">Remittances - 41 (P)</option>
+          <option value="Reports - 51 (P)">Reports - 51 (P)</option>
+          <option value="SMS - 42 (P)">SMS - 42 (P)</option>
+          <option value="Shares - 43 (P)">Shares - 43 (P)</option>
+          <option value="TDS - 44 (P)">TDS - 44 (P)</option>
+          <option value="Transactions - 45 (P)">Transactions - 45 (P)</option>
+          <option value="User Management - 47 (P)">User Management - 47 (P)</option>
+          <option value="Version Updation - 49 (P)">Version Updation - 49 (P)</option>
+          <option value="Voucher Uploading - 46 (P)">Voucher Uploading - 46 (P)</option>
+          <option value="ePassbook - 55 (P)">ePassbook - 55 (P)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="productFilter">Product :</label>
+        <select id="productFilter" name="productFilter">
+          <option value="">All Products</option>
+          <option value="APBS/DBTL">APBS/DBTL</option>
+          <option value="ATM Interface">ATM Interface</option>
+          <option value="ATM Charges Module">ATM Charges Module</option>
+          <option value="Anti Money Laundering">Anti Money Laundering</option>
+          <option value="Arista Payment Solution">Arista Payment Solution</option>
+          <option value="Audit Module Product">Audit Module Product</option>
+          <option value="BCBF Management">BCBF Management</option>
+          <option value="C KYC">C KYC</option>
+          <option value="CTS Interface">CTS Interface</option>
+          <option value="Credit Appraisal System">Credit Appraisal System</option>
+          <option value="Credit Bureau">Credit Bureau</option>
+          <option value="Custodian - CBS">Custodian - CBS</option>
+          <option value="Custodian - CBS(HO)">Custodian - CBS (HO)</option>
+          <option value="Custodian - CBS(HO)">Custodian - CBS(HO)</option>
+          <option value="Custodian - HO(CBS)">Custodian - HO(CBS)</option>
+          <option value="E KYC">E KYC</option>
+          <option value="E Passbook">E Passbook</option>
+          <option value="Electronic Fund Transfer">Electronic Fund Transfer</option>
+          <option value="FCO">FCO</option>
+          <option value="IMPS">IMPS</option>
+          <option value="Internet Banking System">Internet Banking System</option>
+          <option value="Loan Recovery">Loan Recovery</option>
+          <option value="Mobile Banking System">Mobile Banking System</option>
+          <option value="Mobile Based Pigmy Collection">Mobile Based Pigmy Collection</option>
+          <option value="Report Writing Tool">Report Writing Tool</option>
+          <option value="SFMS Interface">SFMS Interface</option>
+          <option value="Statement on Email">Statement on Email</option>
+          <option value="Dual Login Authen using QR">Dual Login Authen using QR</option>
+          <option value="FIR">FIR</option>
+          <option value="LIF">LIF</option>
+          <option value="LVF">LVF</option>
+          <option value="SMS Mitra">SMS Mitra</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="dateFilter">First Date :</label>
+        <input type="date" id="dateFilter" name="dateFilter" />
+      </div>
+
+      <div class="filter-group">
+        <label for="callIdFilter">Last Date :</label>
+        <input type="date" id="callIdFilter" name="callIdFilter" />
+      </div>
+
+      <div class="filter-group">
+        <label for="bankNameFilter">Bank Name :</label>
+        <input type="text" id="bankNameFilter" name="bankNameFilter" placeholder="Enter Bank Name" />
+      </div>
+
+
+
+
+<div class="filter-group">
+  <label for="ticketIdFilterInput">Ticket ID :</label>
+  <input 
+    type="text" 
+    id="ticketIdFilterInput" 
+    name="ticketIdFilterInput" 
+    placeholder="Enter Ticket ID"
+  />
+</div>
+
+
+
+
+
+
+
+
+      <button type="submit" class="btn">Apply Filters</button>
+      <button type="button" class="btn" onclick="clearFilters()">Clear Filters</button>
+
+    </form>
+  </section>
+
+  <section id="support" class="problem-section">
+    <h2>Send Problem</h2>
+    <form id="problemForm">
+      <textarea id="problemInput" placeholder="Type your problem here..." required autofocus></textarea>
+      <button type="submit" class="btn">Send</button>
+    </form>
+  </section>
+
+  <section id="solution" class="solution-section">
+    <h2>Solution</h2>
+
+    <div class="checkbox-group">
+      <label><input type="checkbox" class="displayOption" value="date" checked> Call Date</label>
+      <label><input type="checkbox" class="displayOption" value="bankName" checked> Bank Name</label>
+      <label><input type="checkbox" class="displayOption" value="product" checked> Product</label>
+<label><input type="checkbox" id="showShortSolutions"> Show All Solution Records</label>
+
+      <label><input type="checkbox" class="displayOption" value="program" checked> Program</label>
+      <label><input type="checkbox" class="displayOption" value="problem" checked> Call Details</label>
+      <label><input type="checkbox" class="displayOption" value="solution" checked> Solution Details</label>
+      <label><input type="checkbox" class="displayOption" value="queue" checked> Queue</label>
+
+    </div>
+<!-- Add these inside the <section id="solution">, before <div id="solutionBox"> -->
+<div style="display:flex; gap:10px; justify-content:flex-end; margin-bottom:10px;">
+  <button id="exportCsvBtn" class="btn" type="button">Export Excel (CSV)</button>
+  <button id="exportPdfBtn" class="btn" type="button">Export PDF</button>
+</div>
+
+    <div id="solutionBox">Your solution will appear here after you submit a problem.</div>
+  </section>
+
+  <button id="topBtn">TOP</button>
+
+  <footer>
+    <p>© 2025 List Banking Support System. All Rights Reserved.</p>
+  </footer>
+
+  <!-- CHATBOT -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -293,21 +881,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const problemForm = document.getElementById("problemForm");
   const solutionBox = document.getElementById("solutionBox");
   const displayOptions = document.querySelectorAll(".displayOption");
+  // after DOMContentLoaded and after lastTickets variable exists
+document.getElementById("exportCsvBtn").addEventListener("click", () => exportToCSV());
+document.getElementById("exportPdfBtn").addEventListener("click", () => exportToPDF());
 
-  document.getElementById("exportCsvBtn").addEventListener("click", () => exportToCSV());
-  document.getElementById("exportPdfBtn").addEventListener("click", () => exportToPDF());
 
   let lastFilterData = {};
   let lastProblem = "";
-  let lastTickets = [];
+  let lastTickets = []; 
+
 
   function getCallId(t) {
-    return t["ï»¿CALL_ID"] || t.CALL_ID || "";
-  }
+  return t["ï»¿CALL_ID"] || t.CALL_ID || "";
+}
+
+
+
+
 
   let dateSortAsc = true;
   window.isSorting = false;
 
+
+
+
+
+  // ✅ Toggle Filter Section
   toggleFilterBtn.addEventListener("click", () => {
     filterSection.style.display =
       filterSection.style.display === "none" || !filterSection.style.display
@@ -315,12 +914,13 @@ document.addEventListener("DOMContentLoaded", () => {
         : "none";
   });
 
+  // Helper: parse backend CALL_DATE into JS Date
   function parseCallDate(str) {
     if (!str) return null;
-
     let d = new Date(str);
     if (!isNaN(d)) return d;
 
+    // Try DD-MM-YYYY or MM-DD-YYYY (screenshot shows 03-15-2025 -> MM-DD-YYYY)
     const m = str.match(/(\d{2})-(\d{2})-(\d{4})/);
     if (m) {
       const mm = m[1];
@@ -333,104 +933,145 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
+  // ✅ When filters submitted
   filterForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const programText =
-      document.getElementById("programFilter").value?.trim() || "";
-
+    const programText = document.getElementById("programFilter").value?.trim() || "";
     let programNumber = "";
     if (programText) {
-      const match = programText.match(/- *(\d+)/);
-      programNumber = match
-        ? match[1]
-        : programText.replace(/\D/g, "");
+      const match = programText.match(/- *(\d+)/);  
+      programNumber = match ? match[1] : programText.replace(/\D/g, "");
     }
+const filters = {
+  fromDate: document.getElementById("dateFilter").value || "",
+  toDate: document.getElementById("callIdFilter").value || "",
+  bankName: document.getElementById("bankNameFilter").value?.trim() || "",
+  ticketId: document.getElementById("ticketIdFilterInput").value?.trim() || "", // FIXED
 
-    const filters = {
-      fromDate: document.getElementById("dateFilter").value || "",
-      toDate: document.getElementById("callIdFilter").value || "",
-      bankName: document.getElementById("bankNameFilter").value?.trim() || "",
-      ticketId: document.getElementById("ticketIdFilterInput").value?.trim() || "",
-      problem:
-        cleanProblemText(
-          document.getElementById("problemInput").value?.trim()
-        ) || "",
-      product: document.getElementById("productFilter").value?.trim() || "",
-      program: programNumber || ""
-    };
+
+
+
+
+problem: cleanProblemText(document.getElementById("problemInput").value?.trim()) || "",
+  product: document.getElementById("productFilter").value?.trim() || "",
+  program: programNumber || ""
+};
+
 
     lastFilterData = filters;
     await fetchSolutions(filters.problem, filters);
   });
 
+
   function cleanProblemText(text) {
     if (!text) return "";
 
+    // Normalize
     text = text.trim().toLowerCase();
+
+    // Remove special characters
     text = text.replace(/[^\w\s]/g, " ");
+
+    // Remove repeated spaces
     text = text.replace(/\s+/g, " ");
 
     let words = text.split(" ");
 
+    // Stopwords to remove
     const stopWords = [
-      "the","is","are","and","or","for","please","need","problem","issue","not",
-      "working","want","cannot","can't","from","to","in","on","how","fix","wrong",
-      "with","facing","having","when","while","this","that","user","getting",
-      "after","before","but","still","then"
+        "the","is","are","and","or","for","please","need","problem","issue","not",
+        "working","want","cannot","can't","from","to","in","on","how","fix","wrong",
+        "with","facing","having","when","while","this","that","user","getting",
+        "after","before","but","still","then"
     ];
 
+    // Remove stopwords
     words = words.filter(w => !stopWords.includes(w));
+
+    // Remove duplicates
     words = [...new Set(words)];
 
+    // Limit to most meaningful words (MAX 10)
     if (words.length > 10) words = words.slice(0, 10);
 
     return words.join(" ");
-  }
+}
 
-  problemForm.addEventListener("submit", async (e) => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ // ✅ When ONLY problem submitted
+problemForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    let problemText = cleanProblemText(
-      document.getElementById("problemInput").value.trim()
-    );
+    let problemText = cleanProblemText(document.getElementById("problemInput").value.trim());
 
     if (!problemText || problemText.length < 2) {
-      alert("Please enter a valid problem.");
-      return;
+        alert("Please enter a valid problem.");
+        return;
     }
 
     lastProblem = problemText;
     const tempFilters = { ...lastFilterData, problem: problemText };
 
     await fetchSolutions(problemText, tempFilters);
-  });
+});
 
+
+
+
+
+
+
+
+
+  // Checkbox toggles
   displayOptions.forEach(opt =>
     opt.addEventListener("change", () => renderTickets(lastTickets))
   );
 
+  // ==============================
+  //      FETCH SOLUTIONS
+  // ==============================
   async function fetchSolutions(problemText, filters) {
 
-    if (/^\d+$/.test(problemText)) {
-      const callId = problemText.replace(/,/g, "");
-      await fetchCallIdDirect(callId);
-      return;
-    }
+// If user enters only numbers → treat as CALL ID search (unique)
+if (/^\d+$/.test(problemText)) {
+    const callId = problemText.replace(/,/g, "");
+    await fetchCallIdDirect(callId);
+    return; // stop normal filtering process
+}
+
+
+
+
+  
+
+
+
+
 
     try {
+
       const params = new URLSearchParams();
-      params.append(
-        "username",
-        localStorage.getItem("loggedUser") || "Unknown"
-      );
+
+      params.append("username", localStorage.getItem("loggedUser") || "Unknown");
 
       function addFilter(key, value) {
-        if (
-          value !== undefined &&
-          value !== null &&
-          value.toString().trim() !== ""
-        ) {
+        if (value !== undefined && value !== null && value.toString().trim() !== "") {
           params.append(key, value.trim());
         }
       }
@@ -439,484 +1080,837 @@ document.addEventListener("DOMContentLoaded", () => {
       addFilter("toDate", filters.toDate);
       addFilter("bankName", filters.bankName);
       addFilter("problem", filters.problem);
-      addFilter("ticketId", filters.ticketId);
+addFilter("ticketId", filters.ticketId);
+
+
+
       addFilter("product", filters.product);
       addFilter("program", filters.program);
 
       if (!problemText && [...params.entries()].length === 0) {
-        solutionBox.innerHTML =
-          `<p style="color:gray;">Please enter a problem or apply at least one filter.</p>`;
+        solutionBox.innerHTML = `<p style="color:gray;">Please enter a problem or apply at least one filter.</p>`;
         return;
       }
 
       solutionBox.innerHTML = "<p>⏳ Searching... please wait.</p>";
 
-      const API_BASE = "https://list-project-16.onrender.com";
+     const API_BASE = "https://list-project-16.onrender.com";
 
-      const response = await fetch(
-        `${API_BASE}/api/tickets/search?${params.toString()}`,
-        { method: "GET" }
-      );
+const response = await fetch(
+`${API_BASE}/api/tickets/search?${params.toString()}`,
+  { method: "GET" }
+);
 
-      if (!response.ok)
-        throw new Error(`Server error: ${response.status}`);
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       let tickets = await response.json();
 
-      if (filters.problem) {
-        const keywords = filters.problem.toLowerCase().split(" ");
 
-        tickets = tickets.map(t => {
-          let text =
-            `${t.CALL_DETAILS || ""} ${t.SOLUTION_DETAILS || ""}`.toLowerCase();
-          let score = 0;
 
-          keywords.forEach(word => {
-            if (text.includes(word)) score += 2;
-            if (text.startsWith(word)) score += 3;
-          });
 
-          return { ...t, _score: score };
+      // ---- AI Style Search Scoring ----
+if (filters.problem) {
+
+    const keywords = filters.problem.toLowerCase().split(" ");
+
+    // Rank by relevance
+    tickets = tickets.map(t => {
+
+        let text = `${t.CALL_DETAILS || ""} ${t.SOLUTION_DETAILS || ""}`.toLowerCase();
+        let score = 0;
+
+        keywords.forEach(word => {
+            if (text.includes(word)) score += 2;   // direct match
+            if (text.startsWith(word)) score += 3; // strong match
         });
 
-        tickets = tickets
-          .filter(t => t._score > 0)
-          .sort((a, b) => b._score - a._score);
+        return { ...t, _score: score };
+    });
 
-        if (tickets.length === 0) {
-          solutionBox.innerHTML =
-            `<p style="color:red;">⚠️ No similar results found.</p>`;
-          lastTickets = [];
-          return;
-        }
+    // Sort by best match (highest score first)
+    tickets = tickets.filter(t => t._score > 0).sort((a, b) => b._score - a._score);
+
+    if (tickets.length === 0) {
+        solutionBox.innerHTML = `<p style="color:red;">⚠️ No similar results found.</p>`;
+        lastTickets = [];
+        return;
+    }
+}
+
+
+
+
+
+      // Program filter on PROGRAM column (numeric code)
+      if (filters.program) {
+        const progExact = filters.program.trim();
+        tickets = tickets.filter(t => String(t.PROGRAM || "").trim() === progExact);
       }
-
-      lastTickets = tickets;
-      renderTickets(lastTickets, filters.problem);
-
-    } catch (err) {
-      console.error("❌ Fetch Error:", err);
-      solutionBox.innerHTML =
-        `<p style="color:red;">⚠️ Could not connect to backend (port 8080).</p>`;
-    }
-  }
-
-});
-
-async function fetchTicketIdDirect(ticketId) {
-  solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
-
-  try {
-    const response = await fetch(
-      `${API_BASE}/api/tickets/copy of supp_data - copy?TICKET_ID=${ticketId}`
-    );
-
-    if (!response.ok) throw new Error("Server error");
-
-    const data = await response.json();
-
-    if (!data || data.length === 0) {
-      solutionBox.innerHTML =
-        `<p style="color:red;">❌ No record found for Ticket ID: <b>${ticketId}</b></p>`;
-      return;
-    }
-
-    lastTickets = data;
-    renderTickets(data, `Ticket ID: ${ticketId}`);
-    highlightFirstTicket();
-
-  } catch (err) {
-    solutionBox.innerHTML =
-      `<p style="color:red;">⚠ Unable to fetch record.</p>`;
-    console.error(err);
-  }
-}
-
-function renderTickets(tickets, problemText = "") {
-
-  if (!tickets || tickets.length === 0) {
-    solutionBox.innerHTML =
-      `<p style="color:red;">No results found.</p>`;
-    lastTickets = [];
-    return;
-  }
-
-  const visibleFields = Array.from(displayOptions)
-    .filter(opt => opt.checked)
-    .map(opt => opt.value);
-
-  let html = "";
-
-  if (problemText) {
-    html += `
-      <h3>Search Results for:</h3>
-      <p><b>${problemText}</b></p>
-      <hr/>
-    `;
-  }
-
-  html += `
-    <table id="resultTable">
-      <thead>
-        <tr>
-          <th>SR. NO</th>
-          <th id="sortCallId">CALL_ID ⬍</th>
-          ${visibleFields.includes("date") ? "<th id='sortDate'>CALL_DATE ⬍</th>" : ""}
-          ${visibleFields.includes("bankName") ? "<th>BANK_NAME</th>" : ""}
-          ${visibleFields.includes("product") ? "<th>PRODUCT</th>" : ""}
-          ${visibleFields.includes("prodVersion") ? "<th>PROD_VERSION</th>" : ""}
-          ${visibleFields.includes("program") ? "<th>PROGRAM</th>" : ""}
-          ${visibleFields.includes("problem") ? "<th>CALL_DETAILS</th>" : ""}
-          ${visibleFields.includes("solution") ? "<th>SOLUTION_DETAILS</th>" : ""}
-          ${visibleFields.includes("queue") ? "<th>QUEUE</th>" : ""}
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  tickets.forEach((t, i) => {
-
-    let callValue = (t.CALL_ID || t["ï»¿CALL_ID"] || "")
-      .toString()
-      .replace(/,/g, "");
-
-    const callIdLink = callValue
-      ? `<a class="call-link"
-           href="http://172.100.30.3:8080/apex/f?p=100:90:0::NO::P90_CALLID:${callValue}"
-           target="_blank"
-           style="color:#007bff;font-weight:bold;text-decoration:underline;">
-           ${callValue}
-         </a>`
-      : "-";
-
-    let longProblem = t.CALL_DETAILS && t.CALL_DETAILS.length > 120;
-    let longSolution = t.SOLUTION_DETAILS && t.SOLUTION_DETAILS.length > 120;
-
-    html += `
-      <tr class="ticket-row" id="ticket-${i}">
-        <td>${i + 1}</td>
-        <td>${callIdLink}</td>
-        ${visibleFields.includes("date") ? `<td>${t.CALL_DATE || "-"}</td>` : ""}
-        ${visibleFields.includes("bankName") ? `<td>${t.BANK_NAME || "-"}</td>` : ""}
-        ${visibleFields.includes("product") ? `<td>${t.PRODUCT || "-"}</td>` : ""}
-        ${visibleFields.includes("prodVersion") ? `<td>${t.PROD_VERSION || "-"}</td>` : ""}
-        ${visibleFields.includes("program") ? `<td>${t.PROGRAM || "-"}</td>` : ""}
-
-        ${visibleFields.includes("problem") ? `
-          <td>
-            <div class="clamp3">${makeLinksClickable(t.CALL_DETAILS || "-")}</div>
-            ${longProblem ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
-          </td>` : ""}
-
-        ${visibleFields.includes("solution") ? `
-          <td>
-            <div class="clamp3">${makeLinksClickable(t.SOLUTION_DETAILS || "-")}</div>
-            ${longSolution ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
-          </td>` : ""}
-
-        ${visibleFields.includes("queue") ? `<td>${t.QUEUE || "-"}</td>` : ""}
-      </tr>
-    `;
-  });
-
-  html += `</tbody></table>`;
-  solutionBox.innerHTML = html;
-
-  applySolutionFilter();
-  enableRowHighlight();
-}
-
-window.toggleMore = function (btn) {
-  const box = btn.previousElementSibling;
-
-  if (!box) return;
-
-  const isExpanded = box.classList.contains("expanded-text");
-
-  if (isExpanded) {
-    box.classList.remove("expanded-text");
-    btn.innerText = "See More";
-  } else {
-    box.classList.add("expanded-text");
-    btn.innerText = "See Less";
-  }
-};
-
-function applySolutionFilter() {
-  const showAll =
-    document.getElementById("showShortSolutions").checked;
-
-  const rows =
-    document.querySelectorAll("#resultTable tbody tr");
-
-  rows.forEach(row => {
-    const solutionCell =
-      row.querySelector("td:nth-last-child(2)");
-
-    if (!solutionCell) return;
-
-    const text = solutionCell.innerText.trim();
-    const wordCount = text.split(/\s+/).length;
-
-    if (!showAll && (text === "-" || text === "" || wordCount < 1)) {
-      row.style.display = "none";
-    } else {
-      row.style.display = "";
-    }
-  });
-}
-
-document
-  .getElementById("showShortSolutions")
-  .addEventListener("change", () => {
-    applySolutionFilter();
-  });
-
-let activeRowIndex = 0;
-
-function enableRowHighlight() {
-  const rows = document.querySelectorAll(".ticket-row");
-  if (rows.length === 0) return;
-
-  rows.forEach(r => r.classList.remove("ticket-active"));
-
-  if (activeRowIndex < 0) activeRowIndex = 0;
-  if (activeRowIndex >= rows.length)
-    activeRowIndex = rows.length - 1;
-
-  const activeRow = rows[activeRowIndex];
-  activeRow.classList.add("ticket-active");
-
-  if (!window.isSorting) {
-    activeRow.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  }
-
-  rows.forEach((row, i) => {
-    row.addEventListener("click", () => {
-      activeRowIndex = i;
-      enableRowHighlight();
-    });
-  });
-}
-
-function makeLinksClickable(text) {
-  return text.replace(
-    /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" target="_blank">$1</a>'
+      // ✅ Ticket ID filter apply here
+if (filters.ticketId) {
+  tickets = tickets.filter(t => 
+    String(t.TICKET_ID || "").trim() === filters.ticketId
   );
 }
 
-// --------- KEYBOARD NAVIGATION (ARROWS + ENTER) ---------
 
-document.addEventListener("keydown", (e) => {
+      const from = filters.fromDate ? new Date(filters.fromDate) : null;
+      const to = filters.toDate ? new Date(filters.toDate) : null;
 
-  const rows = document.querySelectorAll(".ticket-row");
-  if (rows.length === 0) return;
+      // Date filtering on CALL_DATE
+      if (from || to) {
+        tickets = tickets.filter(t => {
+          if (!t.CALL_DATE) return false;
+          const d = parseCallDate(t.CALL_DATE);
+          if (!d) return false;
 
-  switch (e.key) {
+          if (from && !to)
+            return d.toISOString().split("T")[0] === from.toISOString().split("T")[0];
 
-    case "ArrowDown":
-      e.preventDefault();
-      activeRowIndex = Math.min(activeRowIndex + 1, rows.length - 1);
-      enableRowHighlight();
-      break;
+          if (!from && to) return d <= to;
 
-    case "ArrowUp":
-      e.preventDefault();
-      activeRowIndex = Math.max(activeRowIndex - 1, 0);
-      enableRowHighlight();
-      break;
+          if (from && to) return d >= from && d <= to;
 
-    case "Enter":
-      e.preventDefault();
-
-      const row = rows[activeRowIndex];
-      if (!row) break;
-
-      const callLink = row.querySelector("a.call-link");
-      if (callLink && callLink.href) {
-        window.open(callLink.href, "_blank");
-        break;
+          return true;
+        });
       }
 
-      const cmsLink = row.querySelector("a.cms-link");
-      if (cmsLink && cmsLink.href) {
-        window.open(cmsLink.href, "_blank");
-      }
+      // ----------- 🔍 SMART MATCHING + FALLBACK SEARCH -----------
 
-      break;
+const keywords = (filters.problem || "").toLowerCase().split(" ").filter(x => x.length > 2);
+
+// Score similarity for each ticket
+tickets = tickets.map(t => {
+    const combinedText = `${t.CALL_DETAILS || ""} ${t.SOLUTION_DETAILS || ""}`.toLowerCase();
+    let score = 0;
+
+    keywords.forEach(word => {
+        if (combinedText.includes(word)) score += 2;
+        if (combinedText.startsWith(word)) score += 3;
+        if (combinedText.indexOf(word) > 0 && combinedText.indexOf(word) < 50) score += 1;
+    });
+
+    return { ...t, _score: score };
+});
+
+// Sort by best match
+tickets.sort((a, b) => b._score - a._score);
+
+// Show only results that have some relevance
+const filtered = tickets.filter(t => t._score > 0);
+
+
+// ----------------- RESULT CONDITIONS -----------------
+
+if (filtered.length === 0) {
+
+    solutionBox.innerHTML = `
+        <div style="padding:12px; background:#fff3cd; border-radius:10px; border:1px solid #ffc107;">
+            <strong>⚠ No exact result found.</strong><br>
+            Showing closest related solutions instead:
+        </div>
+        <br/>
+    `;
+
+    // Even no match → still show full DB sorted by relevance
+    lastTickets = tickets.slice(0, 20); // top 20 similar
+} else {
+    lastTickets = filtered;
+}
+
+renderTickets(lastTickets, filters.problem);
+highlightFirstTicket();
+
+
+
+
+
+
+
+
+    } catch (err) {
+      console.error("❌ Fetch Error:", err);
+      solutionBox.innerHTML = `<p style="color:red;">⚠️ Could not connect to backend (port 8080).</p>`;
+    }
   }
+
+
+async function fetchTicketIdDirect(ticketId) {
+    solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
+
+    try {
+const response = await fetch(`${API_BASE}/api/tickets/copy of supp_data - copy?TICKET_ID=${ticketId}`);
+
+        if (!response.ok) throw new Error("Server error");
+
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            solutionBox.innerHTML = `<p style="color:red;">❌ No record found for Ticket ID: <b>${ticketId}</b></p>`;
+            return;
+        }
+
+        lastTickets = data;
+        renderTickets(data, `Ticket ID: ${ticketId}`);
+
+        highlightFirstTicket();
+    } catch (err) {
+        solutionBox.innerHTML = `<p style="color:red;">⚠ Unable to fetch record.</p>`;
+        console.error(err);
+    }
+}
+
+
+
+
+
+
+
+
+
+// --------- REPLACEMENT: renderTickets (paste in place of old renderTickets) ----------
+function renderTickets(tickets, problemText = "") {
+    if (!tickets || tickets.length === 0) {
+        solutionBox.innerHTML = `<p style="color:red;">No results found.</p>`;
+        lastTickets = [];
+        return;
+    }
+
+    const visibleFields = Array.from(displayOptions)
+        .filter(opt => opt.checked)
+        .map(opt => opt.value);
+
+    let html = "";
+    if (problemText)
+        html += `<h3>Search Results for:</h3><p><b>${problemText}</b></p><hr/>`;
+
+    html += `
+        <table id="resultTable">
+          <thead>
+    <tr>
+        <th>SR. NO</th>   <!-- 👈 New Column -->
+        <th id="sortCallId">CALL_ID ⬍</th>
+
+
+
+        
+                    ${visibleFields.includes("date") ? "<th id='sortDate'>CALL_DATE ⬍</th>" : ""}
+                    ${visibleFields.includes("bankName") ? "<th>BANK_NAME</th>" : ""}
+                    ${visibleFields.includes("product") ? "<th>PRODUCT</th>" : ""}
+                    ${visibleFields.includes("prodVersion") ? "<th>PROD_VERSION</th>" : ""}
+
+                    ${visibleFields.includes("program") ? "<th>PROGRAM</th>" : ""}
+                    ${visibleFields.includes("problem") ? "<th>CALL_DETAILS</th>" : ""}
+                    ${visibleFields.includes("solution") ? "<th>SOLUTION_DETAILS</th>" : ""}
+                    ${visibleFields.includes("queue") ? "<th>QUEUE</th>" : ""}
+
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    tickets.forEach((t, i) => {
+let callValue = (t.CALL_ID || t["ï»¿CALL_ID"] || "").toString().replace(/,/g, "");
+
+        const callIdLink = callValue
+            ? `<a class="call-link" href="http://172.100.30.3:8080/apex/f?p=100:90:0::NO::P90_CALLID:${callValue}"
+                 target="_blank" style="color:#007bff; font-weight:bold; text-decoration:underline;">
+                 ${callValue}</a>`
+            : "-";
+
+        let longProblem = t.CALL_DETAILS && t.CALL_DETAILS.length > 120;
+        let longSolution = t.SOLUTION_DETAILS && t.SOLUTION_DETAILS.length > 120;
+
+        html += `
+       <tr class="ticket-row" id="ticket-${i}">
+    <td>${i + 1}</td>   <!-- 👈 Auto row number -->
+    <td>${callIdLink}</td>
+
+
+
+
+
+
+
+
+            ${visibleFields.includes("date") ? `<td>${t.CALL_DATE || "-"}</td>` : ""}
+            ${visibleFields.includes("bankName") ? `<td>${t.BANK_NAME || "-"}</td>` : ""}
+            ${visibleFields.includes("product") ? `<td>${t.PRODUCT || "-"}</td>` : ""}
+            ${visibleFields.includes("prodVersion") ? `<td>${t.PROD_VERSION || "-"}</td>` : ""}
+
+            ${visibleFields.includes("program") ? `<td>${t.PROGRAM || "-"}</td>` : ""}
+
+
+            ${visibleFields.includes("problem") ? `
+                <td>
+                    <div class="clamp3">${makeLinksClickable(t.CALL_DETAILS || "-")}</div>
+                    ${longProblem ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
+                </td>` : ""}
+
+            ${visibleFields.includes("solution") ? `
+                <td>
+                    <div class="clamp3">${makeLinksClickable(t.SOLUTION_DETAILS || "-")}</div>
+                    ${longSolution ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
+                </td>` : ""}
+
+                            ${visibleFields.includes("queue") ? `<td>${t.QUEUE || "-"}</td>` : ""}
+
+
+
+        </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+    solutionBox.innerHTML = html;
+
+    // ===== ENABLE SORTING =====
+
+    // CALL_ID Sorting
+    const callIdHeader = document.getElementById("sortCallId");
+    if (callIdHeader) {
+        callIdHeader.style.cursor = "pointer";
+        callIdHeader.onclick = () => {
+
+              window.isSorting = true; // ⬅️ START sorting
+
+
+
+            window.callIdSortAsc = !window.callIdSortAsc;
+            lastTickets.sort((a, b) => {
+            const idA = parseInt(getCallId(a).replace(/,/g, "")) || 0;
+            const idB = parseInt(getCallId(b).replace(/,/g, "")) || 0;
+
+                return window.callIdSortAsc ? idA - idB : idB - idA;
+            });
+            renderTickets(lastTickets);
+        };
+    }
+
+    // CALL_DATE Sorting
+    const dateHeader = document.getElementById("sortDate");
+    if (dateHeader) {
+        dateHeader.style.cursor = "pointer";
+        dateHeader.onclick = () => {
+            dateSortAsc = !dateSortAsc;
+            lastTickets.sort((a, b) => {
+                const d1 = parseCallDate(a.CALL_DATE);
+                const d2 = parseCallDate(b.CALL_DATE);
+                return dateSortAsc ? d1 - d2 : d2 - d1;
+            });
+            renderTickets(lastTickets);
+        };
+    }
+applySolutionFilter();
+
+    enableRowHighlight();
+}
+
+
+
+
+
+window.toggleMore = function(btn) {
+    const box = btn.previousElementSibling;
+    const isExpanded = box.classList.contains("expanded-text");
+
+    if (isExpanded) {
+        box.classList.remove("expanded-text");
+        btn.innerText = "See More";
+    } else {
+        box.classList.add("expanded-text");
+        btn.innerText = "See Less";
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ================== SOLUTION FILTERING FOR SHORT/EMPTY TEXT ==================
+function applySolutionFilter() {
+    const showAll = document.getElementById("showShortSolutions").checked;
+
+    const rows = document.querySelectorAll("#resultTable tbody tr");
+    rows.forEach(row => {
+        const solutionCell = row.querySelector("td:nth-last-child(2)"); // Solution column based on index
+        if (!solutionCell) return;
+
+        const text = solutionCell.innerText.trim();
+        const wordCount = text.split(/\s+/).length;
+
+        // Default: hide if empty OR less than1 words
+        if (!showAll && (text === "-" || text === "" || wordCount < 1)) {
+            row.style.display = "none";
+        } else {
+            row.style.display = "";
+        }
+    });
+}
+
+// Run filter every time checkbox changes
+document.getElementById("showShortSolutions").addEventListener("change", () => {
+    applySolutionFilter();
 });
 
 
-// --------- EXPORT CSV (EXCEL) ---------
-
-function exportToCSV(filename = "solutions.csv") {
-
-  if (!lastTickets || lastTickets.length === 0) {
-    alert("No results to export.");
-    return;
-  }
-
-  const visibleFields = Array.from(displayOptions)
-    .filter(o => o.checked)
-    .map(o => o.value);
-
-  const cols = ["CALL_ID"];
-
-  if (visibleFields.includes("date")) cols.push("CALL_DATE");
-  if (visibleFields.includes("bankName")) cols.push("BANK_NAME");
-  if (visibleFields.includes("product")) cols.push("PRODUCT");
-  if (visibleFields.includes("prodVersion")) cols.push("PROD_VERSION");
-  if (visibleFields.includes("program")) cols.push("PROGRAM");
-  if (visibleFields.includes("queue")) cols.push("QUEUE");
-  if (visibleFields.includes("problem")) cols.push("CALL_DETAILS");
-  if (visibleFields.includes("solution")) cols.push("SOLUTION_DETAILS");
-
-  const rows = lastTickets.map(t => {
-    return cols.map(c => {
-      const v =
-        t[c] === undefined || t[c] === null
-          ? ""
-          : String(t[c]).replace(/,/g, " ");
-      return `"${v.replace(/"/g, '""')}"`;
-    }).join(",");
-  });
-
-  const csv = [cols.join(","), ...rows].join("\n");
-
-  const blob = new Blob([csv], {
-    type: "text/csv;charset=utf-8;"
-  });
-
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  URL.revokeObjectURL(url);
-}
 
 
-// --------- EXPORT PDF (BROWSER PRINT) ---------
 
-function exportToPDF() {
 
-  if (!lastTickets || lastTickets.length === 0) {
-    alert("No results to export.");
-    return;
-  }
 
-  const visibleFields = Array.from(displayOptions)
-    .filter(o => o.checked)
-    .map(o => o.value);
 
-  const cols = ["CALL_ID"];
+function calculateSimilarity(text, keywords) {
+    if (!text) return 0;
 
-  if (visibleFields.includes("date")) cols.push("CALL_DATE");
-  if (visibleFields.includes("bankName")) cols.push("BANK_NAME");
-  if (visibleFields.includes("product")) cols.push("PRODUCT");
-  if (visibleFields.includes("prodVersion")) cols.push("PROD_VERSION");
-  if (visibleFields.includes("program")) cols.push("PROGRAM");
-  if (visibleFields.includes("queue")) cols.push("QUEUE");
-  if (visibleFields.includes("problem")) cols.push("CALL_DETAILS");
-  if (visibleFields.includes("solution")) cols.push("SOLUTION_DETAILS");
+    text = text.toLowerCase();
+    let score = 0;
 
-  let html = `
-    <html>
-      <head>
-        <title>Solutions</title>
-        <style>
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: Arial, Helvetica, sans-serif;
-          }
-          th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            font-size: 12px;
-            vertical-align: top;
-          }
-          th {
-            background: #f0f0f0;
-          }
-        </style>
-      </head>
-      <body>
-        <h3>Exported Solutions</h3>
-        <table>
-          <thead>
-            <tr>
-  `;
-
-  cols.forEach(c => {
-    html += `<th>${c}</th>`;
-  });
-
-  html += `
-            </tr>
-          </thead>
-          <tbody>
-  `;
-
-  lastTickets.forEach(t => {
-    html += "<tr>";
-    cols.forEach(c => {
-      const v =
-        t[c] === undefined || t[c] === null
-          ? ""
-          : String(t[c])
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-      html += `<td>${v}</td>`;
+    keywords.forEach(word => {
+        if (text.includes(word)) score += 2; // direct match
+        if (text.startsWith(word)) score += 3;
+        if (text.indexOf(word) > 0 && text.indexOf(word) < 50) score += 1.5; // early match priority
     });
-    html += "</tr>";
-  });
 
-  html += `
-          </tbody>
-        </table>
-      </body>
-    </html>
-  `;
-
-  const w = window.open("", "_blank");
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
+    return score;
 }
 
 
-// --------- LOGIN PAGE JS ---------
 
-document
-  .getElementById("loginForm")
-  .addEventListener("submit", function (e) {
 
-    e.preventDefault();
 
-    const user =
-      document.getElementById("username").value.trim();
 
-    const pass =
-      document.getElementById("password").value.trim();
 
-    if (user === "" || pass === "") {
-      alert("Please enter username and password.");
-      return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --------- REPLACEMENT: highlightFirstTicket (ensures activeRowIndex=0) ----------
+function highlightFirstTicket() {
+    setTimeout(() => {
+      const first = document.getElementById("ticket-0");
+      if (first) {
+        activeRowIndex = 0;                  // <--- IMPORTANT: make Enter work immediately
+        first.style.border = "2px solid #28a745";
+        first.style.boxShadow = "0 0 10px rgba(40,167,69,0.15)";
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
+        enableRowHighlight();
+      }
+    }, 200);
+}
+
+// --------- REPLACEMENT: keydown handler (Enter opens CALL_ID then CMS fallback) ----------
+document.addEventListener("keydown", (e) => {
+    const rows = document.querySelectorAll(".ticket-row");
+    if (rows.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        activeRowIndex = Math.min(activeRowIndex + 1, rows.length - 1);
+        enableRowHighlight();
+        break;
+
+      case "ArrowUp":
+        e.preventDefault();
+        activeRowIndex = Math.max(activeRowIndex - 1, 0);
+        enableRowHighlight();
+        break;
+
+      case "Enter":
+        e.preventDefault();
+        const row = rows[activeRowIndex];
+        if (!row) break;
+
+        // Prefer opening CALL_ID link first
+        const callLink = row.querySelector("a.call-link");
+        if (callLink && callLink.href) {
+          window.open(callLink.href, "_blank");
+          break;
+        }
+
+        // fallback: open cms link
+        const cmsLink = row.querySelector("a.cms-link");
+        if (cmsLink && cmsLink.href) {
+          window.open(cmsLink.href, "_blank");
+        }
+        break;
+    }
+});
+// ------------- EXPORT CSV (Excel-friendly) -------------
+function exportToCSV(filename = "solutions.csv") {
+    if (!lastTickets || lastTickets.length === 0) {
+        alert("No results to export.");
+        return;
     }
 
-    localStorage.setItem("loggedUser", user);
-    window.location.href = "home.html";
+    // Determine visible columns (same logic as render)
+    const visibleFields = Array.from(displayOptions).filter(o => o.checked).map(o => o.value);
+    const cols = ["CALL_ID"];
+    if (visibleFields.includes("date")) cols.push("CALL_DATE");
+    if (visibleFields.includes("bankName")) cols.push("BANK_NAME");
+    if (visibleFields.includes("product")) cols.push("PRODUCT");
+    if (visibleFields.includes("prodVersion")) cols.push("PROD_VERSION");
+
+    if (visibleFields.includes("program")) cols.push("PROGRAM");
+    if (visibleFields.includes("queue")) cols.push("QUEUE");
+
+    if (visibleFields.includes("problem")) cols.push("CALL_DETAILS");
+    if (visibleFields.includes("solution")) cols.push("SOLUTION_DETAILS");
+
+    const rows = lastTickets.map(t => {
+        return cols.map(c => {
+            // value safety and remove commas that break CSV columns
+            const v = t[c] === undefined || t[c] === null ? "" : String(t[c]).replace(/,/g, " ");
+            return `"${v.replace(/"/g,'""')}"`; // quote and escape quotes
+        }).join(",");
+    });
+
+    const csv = [cols.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+// ------------- EXPORT PDF (uses browser Print, no libs) -------------
+function exportToPDF() {
+    if (!lastTickets || lastTickets.length === 0) {
+        alert("No results to export.");
+        return;
+    }
+    // Build a printable HTML table (same columns visible)
+    const visibleFields = Array.from(displayOptions).filter(o => o.checked).map(o => o.value);
+    const cols = ["CALL_ID"];
+    if (visibleFields.includes("date")) cols.push("CALL_DATE");
+    if (visibleFields.includes("bankName")) cols.push("BANK_NAME");
+    if (visibleFields.includes("cms")) cols.push("CMS");
+    if (visibleFields.includes("product")) cols.push("PRODUCT");
+    if (visibleFields.includes("prodVersion")) cols.push("PROD_VERSION");
+
+    if (visibleFields.includes("program")) cols.push("PROGRAM");
+    if (visibleFields.includes("queue")) cols.push("QUEUE");
+
+    if (visibleFields.includes("problem")) cols.push("CALL_DETAILS");
+    if (visibleFields.includes("solution")) cols.push("SOLUTION_DETAILS");
+
+    let html = `<html><head><title>Solutions</title>
+        <style>
+          table{width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif}
+          th,td{border:1px solid #ccc;padding:8px;font-size:12px;vertical-align:top}
+          th{background:#f0f0f0}
+        </style></head><body><h3>Exported Solutions</h3><table><thead><tr>`;
+    cols.forEach(c => html += `<th>${c}</th>`);
+    html += `</tr></thead><tbody>`;
+    lastTickets.forEach(t => {
+        html += '<tr>';
+        cols.forEach(c => {
+            const v = t[c] === undefined || t[c] === null ? "" : String(t[c]).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            html += `<td>${v}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += `</tbody></table></body></html>`;
+
+    const w = window.open("", "_blank");
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    // Let user print to PDF from browser -> File > Print (or Ctrl+P) -> Save as PDF
+}
+
+  // ==============================
+  //   TABLE ROW HIGHLIGHT + SCROLL
+  // ==============================
+  let activeRowIndex = 0;
+
+  function enableRowHighlight() {
+    const rows = document.querySelectorAll(".ticket-row");
+    if (rows.length === 0) return;
+
+    rows.forEach(r => r.classList.remove("ticket-active"));
+
+    if (activeRowIndex < 0) activeRowIndex = 0;
+    if (activeRowIndex >= rows.length) activeRowIndex = rows.length - 1;
+
+    const activeRow = rows[activeRowIndex];
+    activeRow.classList.add("ticket-active");
+
+
+
+
+// Remove scrolling during sorting
+if (!window.isSorting) {
+    activeRow.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+
+
+
+
+
+
+    rows.forEach((row, i) => {
+        row.addEventListener("click", () => {
+            activeRowIndex = i;
+            enableRowHighlight();
+        });
+    });
+  }
+
+  // ==============================
+  //   KEYBOARD ARROW NAVIGATION
+  // ==============================
+  document.addEventListener("keydown", (e) => {
+    const rows = document.querySelectorAll(".ticket-row");
+    if (rows.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        activeRowIndex++;
+        enableRowHighlight();
+        break;
+
+      case "ArrowUp":
+        e.preventDefault();
+        activeRowIndex--;
+        enableRowHighlight();
+        break;
+
+      case "Enter":
+        e.preventDefault();
+        const row = rows[activeRowIndex];
+        if (!row) break;
+        const cmsLink = row.querySelector("a");
+        if (cmsLink) window.open(cmsLink.href, "_blank");
+        break;
+    }
   });
 
+  // ==============================
+  //   FIRST TICKET AUTO HIGHLIGHT
+  // ==============================
+  function highlightFirstTicket() {
+    setTimeout(() => {
+      const first = document.getElementById("ticket-0");
+      if (first) {
+        first.style.border = "2px solid #28a745";
+        first.style.boxShadow = "0 0 10px rgba(40,167,69,.5)";
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 200);
+  }
+
+  // CLEAR FILTERS
+  window.clearFilters = () => {
+    filterForm.reset();
+    lastFilterData = {};
+
+    document.getElementById("problemInput").value = "";
+    lastProblem = "";
+
+    solutionBox.innerHTML =
+      `<p>Your solution will appear here after you submit a problem or apply filters.</p>`;
+  };
+
+  // ===== TOP BUTTON FUNCTIONALITY =====
+
+  const topBtn = document.getElementById("topBtn");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      topBtn.style.display = "flex";
+    } else {
+      topBtn.style.display = "none";
+    }
+  });
+
+  topBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // ENTER BUTTON SEND PROBLEM
+  const textarea = document.getElementById("problemInput");
+  const form = document.getElementById("problemForm");
+
+  textarea.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const msg = textarea.value.trim();
+    if (!msg) return;
+
+    console.log("Problem Sent:", msg);
+  });
+
+  // ==============================
+  // SEE MORE / SEE LESS
+  // ==============================
+ window.toggleMore = function(btn) {
+    const box = btn.previousElementSibling;
+
+    if (!box) return;
+
+    const isExpanded = box.classList.contains("expanded-text");
+
+    if (isExpanded) {
+        box.classList.remove("expanded-text");
+        btn.innerText = "See More";
+    } else {
+        box.classList.add("expanded-text");
+        btn.innerText = "See Less";
+    }
+};
+
+}
+
+
+);
+
+// ==== LOGIN PAGE JS ====
+
+// When login form is submitted
+document.getElementById("loginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const user = document.getElementById("username").value.trim();
+    const pass = document.getElementById("password").value.trim();
+
+    // ---- SIMPLE LOGIN (NO BACKEND NEEDED) ----
+    if (user === "" || pass === "") {
+        alert("Please enter username and password.");
+        return;
+    }
+
+    // Save logged user in browser
+    localStorage.setItem("loggedUser", user);
+
+    // Redirect to home.html
+    window.location.href = "home.html";
+});
+
+
+
+
+function makeLinksClickable(text) {
+    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+}
+
+
+
+
+
+
+function logoutUser() {
+    localStorage.removeItem("loggedUser");   // Clear login
+    window.location.href = "/";              // Go to index page
+}
+
+
+
+
+
+
+
+
+
 </script>
+  <script src='https://cdn.jotfor.ms/agent/embedjs/019a57b5b33a7439995a3da4f028ac899a67/embed.js'></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
