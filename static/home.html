@@ -273,6 +273,9 @@ footer {
     accent-color: #4A90E2;
 }
 
+
+
+
 .filter-group label {
   font-weight: 500;
   color: #555;
@@ -349,11 +352,11 @@ footer {
 /* ---------------- PROBLEM & SOLUTION ---------------- */
 .problem-section,
 .solution-section {
-  margin: 40px auto;
-  width: 80%;
-  max-width: 1100px;
+  margin: 30px auto;
+  width: 98%;              /* ⬅ almost full screen */
+  max-width: none;         /* ⬅ remove width limit */
   background: #fff;
-  padding: 25px;
+  padding: 20px;
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
@@ -391,6 +394,8 @@ footer {
   border-color: #4A90E2;
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
+
+
 
 /* ---------------- SOLUTION BOX (TABLE VIEW) ---------------- */
 #solutionBox {
@@ -593,6 +598,26 @@ chat-body p.bot {
   .chat-window { width: 300px; height: 420px; right: 10px; bottom: 80px; }
 }
 
+
+
+/* -------- FORCE WIDTH FOR CALL & SOLUTION COLUMNS -------- */
+
+/* CALL_DETAILS column */
+#solutionBox td:nth-child(7) {
+  min-width: 520px;
+  max-width: 650px;
+}
+
+/* SOLUTION_DETAILS column */
+#solutionBox td:nth-child(8) {
+  min-width: 520px;
+  max-width: 650px;
+}
+
+
+
+
+
 /* ---------------- CLAMP TEXT FOR TABLE ---------------- */
 .clamp3 {
   display: -webkit-box;
@@ -604,6 +629,17 @@ chat-body p.bot {
   word-break: break-word;
   max-height: 70px;
 }
+
+
+.solution-text {
+  line-height: 1.7;
+  word-break: break-word;
+  white-space: normal;
+}
+
+
+
+
 
 .expanded-text {
   -webkit-line-clamp: unset !important;
@@ -661,6 +697,18 @@ chat-body p.bot {
 }
 
 
+
+
+
+.pending { color: orange; font-weight: bold; }
+.closed { color: green; font-weight: bold; }
+.forwarded { color: blue; font-weight: bold; }
+
+
+
+
+
+
   </style>
 </head>
 <body class="home-body">
@@ -670,15 +718,14 @@ chat-body p.bot {
     <nav>
       <ul>
         <li><a href="home.html">Home</a></li>
-<li><a href="#" onclick="logoutUser()">Logout</a></li>
-</li>
+        <li><a href="/static/login.html" onclick="logout()">Logout</a></li>
         
       </ul>
     </nav>
   </header>
 
   <section class="hero">
-<img src="/static/List.png" class="logo" style="height:60px;">
+<img src="List.png" class="logo" style="height:60px;">
       <center>
       <h1>List Software Support Team</h1>
       <p>Submit your issue, and we’ll find the best solution for you.</p>
@@ -821,6 +868,32 @@ chat-body p.bot {
 </div>
 
 
+<div class="filter-group">
+  <label for="SOLVED_BY_FILTER">SOLVED_BY:</label>
+  <input
+    type="text"
+    id="SOLVED_BY_FILTER"
+    placeholder="Enter SOLVED_BY"
+  />
+</div>
+
+
+
+
+<div class="filter-group">
+  <label for="callIdFilterInput">Call ID :</label>
+  <input
+    type="text"
+    id="callIdFilterInput"
+    placeholder="Enter Call ID"
+  />
+</div>
+
+
+
+
+
+
 
 
 
@@ -844,6 +917,26 @@ chat-body p.bot {
   <section id="solution" class="solution-section">
     <h2>Solution</h2>
 
+
+
+    <!-- STATUS FILTER -->
+<select id="statusFilter" style="
+  padding:6px 10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:13px;
+">
+  <option value="ALL">All Calls</option>
+  <option value="PENDING">Pending</option>
+  <option value="CLOSED">Closed</option>
+  <option value="FORWARDED">Forwarded</option>
+</select>
+
+
+
+
+
+
     <div class="checkbox-group">
       <label><input type="checkbox" class="displayOption" value="date" checked> Call Date</label>
       <label><input type="checkbox" class="displayOption" value="bankName" checked> Bank Name</label>
@@ -854,6 +947,11 @@ chat-body p.bot {
       <label><input type="checkbox" class="displayOption" value="problem" checked> Call Details</label>
       <label><input type="checkbox" class="displayOption" value="solution" checked> Solution Details</label>
       <label><input type="checkbox" class="displayOption" value="queue" checked> Queue</label>
+<label><input type="checkbox" class="displayOption" value="status" checked> Status</label>
+
+
+
+
 
     </div>
 <!-- Add these inside the <section id="solution">, before <div id="solutionBox"> -->
@@ -914,7 +1012,7 @@ document.getElementById("exportPdfBtn").addEventListener("click", () => exportTo
         : "none";
   });
 
-  // Helper: parse backend CALL_DATE into JS Date
+  // Helper: parse backend CLOSED_DATE into JS Date
   function parseCallDate(str) {
     if (!str) return null;
     let d = new Date(str);
@@ -943,6 +1041,10 @@ document.getElementById("exportPdfBtn").addEventListener("click", () => exportTo
       const match = programText.match(/- *(\d+)/);  
       programNumber = match ? match[1] : programText.replace(/\D/g, "");
     }
+
+
+
+
 const filters = {
   fromDate: document.getElementById("dateFilter").value || "",
   toDate: document.getElementById("callIdFilter").value || "",
@@ -950,6 +1052,10 @@ const filters = {
   ticketId: document.getElementById("ticketIdFilterInput").value?.trim() || "", // FIXED
 
 
+  callId: document.getElementById("callIdFilterInput").value.trim() || "",
+
+
+  SOLVED_BY: document.getElementById("SOLVED_BY_FILTER").value.trim(), // ✅ ADD THIS
 
 
 
@@ -967,41 +1073,22 @@ problem: cleanProblemText(document.getElementById("problemInput").value?.trim())
   function cleanProblemText(text) {
     if (!text) return "";
 
-    // Normalize
-    text = text.trim().toLowerCase();
+    text = text.trim();
 
-    // Remove special characters
-    text = text.replace(/[^\w\s]/g, " ");
+    // 👉 If user typed ONLY numbers (CALL ID search)
+    if (/^\d+$/.test(text)) {
+        return text;  // do NOT modify call id
+    }
 
-    // Remove repeated spaces
-    text = text.replace(/\s+/g, " ");
+    // 👉 Normal text process for other searches
+    text = text.replace(/[()/:.-]/g, " ");
+    text = text.replace(/\s+/g, " ").trim();
 
     let words = text.split(" ");
-
-    // Stopwords to remove
-    const stopWords = [
-        "the","is","are","and","or","for","please","need","problem","issue","not",
-        "working","want","cannot","can't","from","to","in","on","how","fix","wrong",
-        "with","facing","having","when","while","this","that","user","getting",
-        "after","before","but","still","then"
-    ];
-
-    // Remove stopwords
-    words = words.filter(w => !stopWords.includes(w));
-
-    // Remove duplicates
-    words = [...new Set(words)];
-
-    // Limit to most meaningful words (MAX 10)
-    if (words.length > 10) words = words.slice(0, 10);
+    if (words.length > 8) words = words.slice(0, 8);
 
     return words.join(" ");
 }
-
-
-
-
-
 
 
 
@@ -1017,25 +1104,17 @@ problem: cleanProblemText(document.getElementById("problemInput").value?.trim())
 problemForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    let problemText = cleanProblemText(document.getElementById("problemInput").value.trim());
-
-    if (!problemText || problemText.length < 2) {
-        alert("Please enter a valid problem.");
-        return;
-    }
+    let problemText = cleanProblemText(
+        document.getElementById("problemInput").value.trim()
+    );
+    if (!problemText) return alert("Please enter your problem.");
 
     lastProblem = problemText;
+
     const tempFilters = { ...lastFilterData, problem: problemText };
 
     await fetchSolutions(problemText, tempFilters);
 });
-
-
-
-
-
-
-
 
 
   // Checkbox toggles
@@ -1083,6 +1162,12 @@ if (/^\d+$/.test(problemText)) {
 addFilter("ticketId", filters.ticketId);
 
 
+addFilter("SOLVED_BY", filters.SOLVED_BY);
+addFilter("callId", filters.callId);
+
+
+
+
 
       addFilter("product", filters.product);
       addFilter("program", filters.program);
@@ -1094,52 +1179,14 @@ addFilter("ticketId", filters.ticketId);
 
       solutionBox.innerHTML = "<p>⏳ Searching... please wait.</p>";
 
-     const API_BASE = "https://list-project-16.onrender.com";
-
-const response = await fetch(
-`${API_BASE}/api/tickets/search?${params.toString()}`,
-  { method: "GET" }
-);
+      const response = await fetch(
+        `http://localhost:8080/api/tickets/CALL_DETAILS_VIEW?${params.toString()}`,
+        { method: "GET" }
+      );
 
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       let tickets = await response.json();
-
-
-
-
-      // ---- AI Style Search Scoring ----
-if (filters.problem) {
-
-    const keywords = filters.problem.toLowerCase().split(" ");
-
-    // Rank by relevance
-    tickets = tickets.map(t => {
-
-        let text = `${t.CALL_DETAILS || ""} ${t.SOLUTION_DETAILS || ""}`.toLowerCase();
-        let score = 0;
-
-        keywords.forEach(word => {
-            if (text.includes(word)) score += 2;   // direct match
-            if (text.startsWith(word)) score += 3; // strong match
-        });
-
-        return { ...t, _score: score };
-    });
-
-    // Sort by best match (highest score first)
-    tickets = tickets.filter(t => t._score > 0).sort((a, b) => b._score - a._score);
-
-    if (tickets.length === 0) {
-        solutionBox.innerHTML = `<p style="color:red;">⚠️ No similar results found.</p>`;
-        lastTickets = [];
-        return;
-    }
-}
-
-
-
-
 
       // Program filter on PROGRAM column (numeric code)
       if (filters.program) {
@@ -1148,27 +1195,20 @@ if (filters.problem) {
       }
       // ✅ Ticket ID filter apply here
 if (filters.ticketId) {
-  let userId = filters.ticketId.replace(/,/g, "").trim();
-
-  tickets = tickets.filter(t => {
-    let dbId = String(t.TICKET_ID || "")
-                     .replace(/,/g, "")
-                     .trim();
-
-    return dbId === userId;
-  });
+  tickets = tickets.filter(t => 
+    String(t.TICKET_ID || "").trim() === filters.ticketId
+  );
 }
-
 
 
       const from = filters.fromDate ? new Date(filters.fromDate) : null;
       const to = filters.toDate ? new Date(filters.toDate) : null;
 
-      // Date filtering on CALL_DATE
+      // Date filtering on CLOSED_DATE
       if (from || to) {
         tickets = tickets.filter(t => {
-          if (!t.CALL_DATE) return false;
-          const d = parseCallDate(t.CALL_DATE);
+          if (!t.CLOSED_DATE) return false;
+          const d = parseCallDate(t.CLOSED_DATE);
           if (!d) return false;
 
           if (from && !to)
@@ -1182,58 +1222,15 @@ if (filters.ticketId) {
         });
       }
 
-      // ----------- 🔍 SMART MATCHING + FALLBACK SEARCH -----------
+      if (!Array.isArray(tickets) || tickets.length === 0) {
+        solutionBox.innerHTML = `<p style="color:red;">No records found for your filters.</p>`;
+        return;
+      }
 
-const keywords = (filters.problem || "").toLowerCase().split(" ").filter(x => x.length > 2);
+      lastTickets = tickets;
+      renderTickets(tickets, problemText);
 
-// Score similarity for each ticket
-tickets = tickets.map(t => {
-    const combinedText = `${t.CALL_DETAILS || ""} ${t.SOLUTION_DETAILS || ""}`.toLowerCase();
-    let score = 0;
-
-    keywords.forEach(word => {
-        if (combinedText.includes(word)) score += 2;
-        if (combinedText.startsWith(word)) score += 3;
-        if (combinedText.indexOf(word) > 0 && combinedText.indexOf(word) < 50) score += 1;
-    });
-
-    return { ...t, _score: score };
-});
-
-// Sort by best match
-tickets.sort((a, b) => b._score - a._score);
-
-// Show only results that have some relevance
-const filtered = tickets.filter(t => t._score > 0);
-
-
-// ----------------- RESULT CONDITIONS -----------------
-
-if (filtered.length === 0) {
-
-    solutionBox.innerHTML = `
-        <div style="padding:12px; background:#fff3cd; border-radius:10px; border:1px solid #ffc107;">
-            <strong>⚠ No exact result found.</strong><br>
-            Showing closest related solutions instead:
-        </div>
-        <br/>
-    `;
-
-    // Even no match → still show full DB sorted by relevance
-    lastTickets = tickets.slice(0, 50); // top 20 similar
-} else {
-    lastTickets = filtered;
-}
-
-renderTickets(lastTickets, filters.problem);
-highlightFirstTicket();
-
-
-
-
-
-
-
+      highlightFirstTicket();
 
     } catch (err) {
       console.error("❌ Fetch Error:", err);
@@ -1246,7 +1243,7 @@ async function fetchTicketIdDirect(ticketId) {
     solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
 
     try {
-const response = await fetch(`${API_BASE}/api/tickets/search?ticketId=${ticketId}`);
+        const response = await fetch(`http://localhost:8080/api/tickets/CALL_DETAILS_VIEW?TICKET_ID=${ticketId}`);
 
         if (!response.ok) throw new Error("Server error");
 
@@ -1272,9 +1269,6 @@ const response = await fetch(`${API_BASE}/api/tickets/search?ticketId=${ticketId
 
 
 
-
-
-
 // --------- REPLACEMENT: renderTickets (paste in place of old renderTickets) ----------
 function renderTickets(tickets, problemText = "") {
     if (!tickets || tickets.length === 0) {
@@ -1288,88 +1282,103 @@ function renderTickets(tickets, problemText = "") {
         .map(opt => opt.value);
 
     let html = "";
-    if (problemText)
+    if (problemText) {
         html += `<h3>Search Results for:</h3><p><b>${problemText}</b></p><hr/>`;
+    }
 
     html += `
-        <table id="resultTable">
-          <thead>
-    <tr>
-        <th>SR. NO</th>   <!-- 👈 New Column -->
-        <th id="sortCallId">CALL_ID ⬍</th>
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>SR. NO</th>
+                <th id="sortCallId">CALL_ID ⬍</th>
+                ${visibleFields.includes("date") ? "<th id='sortDate'>CLOSED_DATE ⬍</th>" : ""}
+                ${visibleFields.includes("bankName") ? "<th>BANKNAME</th>" : ""}
+                ${visibleFields.includes("product") ? "<th>PRODUCT</th>" : ""}
+                ${visibleFields.includes("prodVersion") ? "<th>PROD_VERSION</th>" : ""}
+                ${visibleFields.includes("program") ? "<th>PROGRAM</th>" : ""}
+                ${visibleFields.includes("problem") ? "<th>CALL_DETAILS</th>" : ""}
+
+                                ${visibleFields.includes("solution") ? "<th>SOLUTION_DETAILS</th>" : ""}
 
 
 
-        
-                    ${visibleFields.includes("date") ? "<th id='sortDate'>CALL_DATE ⬍</th>" : ""}
-                    ${visibleFields.includes("bankName") ? "<th>BANK_NAME</th>" : ""}
-                    ${visibleFields.includes("product") ? "<th>PRODUCT</th>" : ""}
-                    ${visibleFields.includes("prodVersion") ? "<th>PROD_VERSION</th>" : ""}
-
-                    ${visibleFields.includes("program") ? "<th>PROGRAM</th>" : ""}
-                    ${visibleFields.includes("problem") ? "<th>CALL_DETAILS</th>" : ""}
-                    ${visibleFields.includes("solution") ? "<th>SOLUTION_DETAILS</th>" : ""}
-                    ${visibleFields.includes("queue") ? "<th>QUEUE</th>" : ""}
-
-                </tr>
-            </thead>
-            <tbody>
+${visibleFields.includes("status") ? "<th>STATUS</th>" : ""}
+                ${visibleFields.includes("queue") ? "<th>QUEUE</th>" : ""}
+                ${visibleFields.includes("owner") ? "<th>OWNER_NAME</th>" : ""}
+            </tr>
+        </thead>
+        <tbody>
     `;
 
     tickets.forEach((t, i) => {
-let callValue = (t.CALL_ID || t["ï»¿CALL_ID"] || "").toString().replace(/,/g, "");
+        let callValue = (t.CALL_ID || t["ï»¿CALL_ID"] || "")
+            .toString()
+            .replace(/,/g, "");
 
         const callIdLink = callValue
-            ? `<a class="call-link" href="http://172.100.30.3:8080/apex/f?p=100:90:0::NO::P90_CALLID:${callValue}"
-                 target="_blank" style="color:#007bff; font-weight:bold; text-decoration:underline;">
-                 ${callValue}</a>`
+            ? `<a class="call-link"
+                   href="http://172.100.30.3:8080/apex/f?p=100:90:0::NO::P90_CALLID:${callValue}"
+                   target="_blank"
+                   style="color:#007bff;font-weight:bold;text-decoration:underline;">
+                   ${callValue}</a>`
             : "-";
 
-        let longProblem = t.CALL_DETAILS && t.CALL_DETAILS.length > 120;
-        let longSolution = t.SOLUTION_DETAILS && t.SOLUTION_DETAILS.length > 120;
+        const longProblem = t.CALL_DETAILS && t.CALL_DETAILS.length > 120;
+        const longSolution = t.SOLUTION_DETAILS && t.SOLUTION_DETAILS.length > 120;
+
+        // -------- STATUS LOGIC --------
+        let status = "CLOSED";
+        const solutionText = (t.SOLUTION_DETAILS || "").trim();
+        const queueText = (t.QUEUE || "").toUpperCase();
+
+        if (!solutionText || solutionText === "-" || solutionText === "PENDING") {
+            status = "PENDING";
+        } else if (queueText.includes("FW") || queueText.includes("FORWARD")) {
+            status = "FORWARDED";
+        }
 
         html += `
-       <tr class="ticket-row" id="ticket-${i}">
-    <td>${i + 1}</td>   <!-- 👈 Auto row number -->
-    <td>${callIdLink}</td>
+        <tr class="ticket-row" id="ticket-${i}">
+            <td>${i + 1}</td>
+            <td>${callIdLink}</td>
 
-
-
-
-
-
-
-
-            ${visibleFields.includes("date") ? `<td>${t.CALL_DATE || "-"}</td>` : ""}
-            ${visibleFields.includes("bankName") ? `<td>${t.BANK_NAME || "-"}</td>` : ""}
+            ${visibleFields.includes("date") ? `<td>${t.CLOSED_DATE || "-"}</td>` : ""}
+            ${visibleFields.includes("bankName") ? `<td>${t.BANKNAME || "-"}</td>` : ""}
             ${visibleFields.includes("product") ? `<td>${t.PRODUCT || "-"}</td>` : ""}
             ${visibleFields.includes("prodVersion") ? `<td>${t.PROD_VERSION || "-"}</td>` : ""}
-
             ${visibleFields.includes("program") ? `<td>${t.PROGRAM || "-"}</td>` : ""}
 
-
             ${visibleFields.includes("problem") ? `
-                <td>
-                    <div class="clamp3">${makeLinksClickable(t.CALL_DETAILS || "-")}</div>
-                    ${longProblem ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
-                </td>` : ""}
+            <td>
+                <div class="clamp3">${makeLinksClickable(t.CALL_DETAILS || "-")}</div>
+                ${longProblem ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
+            </td>` : ""}
+${visibleFields.includes("solution") ? `
+<td>
+    <div class="clamp3 solution-text">
+        ${
+            t.SOLUTION_DETAILS
+                ? makeLinksClickable(t.SOLUTION_DETAILS)
+                : "<span class='pending'>PENDING</span>"
+        }
+    </div>
+    ${longSolution ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
+</td>` : ""}
 
-            ${visibleFields.includes("solution") ? `
-                <td>
-                    <div class="clamp3">${makeLinksClickable(t.SOLUTION_DETAILS || "-")}</div>
-                    ${longSolution ? `<span class="see-more-btn" onclick="toggleMore(this)">See More</span>` : ""}
-                </td>` : ""}
-
-                            ${visibleFields.includes("queue") ? `<td>${t.QUEUE || "-"}</td>` : ""}
+${visibleFields.includes("status") ? `<td class="${status.toLowerCase()}">${status}</td>` : ""}
 
 
-
+            ${visibleFields.includes("queue") ? `<td>${t.QUEUE || "-"}</td>` : ""}
+            ${visibleFields.includes("owner") ? `<td>${t.OWNER_NAME || "-"}</td>` : ""}
         </tr>
         `;
     });
 
     html += `</tbody></table>`;
     solutionBox.innerHTML = html;
+
+
 
     // ===== ENABLE SORTING =====
 
@@ -1394,15 +1403,15 @@ let callValue = (t.CALL_ID || t["ï»¿CALL_ID"] || "").toString().replace(/,/g,
         };
     }
 
-    // CALL_DATE Sorting
+    // CLOSED_DATE Sorting
     const dateHeader = document.getElementById("sortDate");
     if (dateHeader) {
         dateHeader.style.cursor = "pointer";
         dateHeader.onclick = () => {
             dateSortAsc = !dateSortAsc;
             lastTickets.sort((a, b) => {
-                const d1 = parseCallDate(a.CALL_DATE);
-                const d2 = parseCallDate(b.CALL_DATE);
+                const d1 = parseCallDate(a.CLOSED_DATE);
+                const d2 = parseCallDate(b.CLOSED_DATE);
                 return dateSortAsc ? d1 - d2 : d2 - d1;
             });
             renderTickets(lastTickets);
@@ -1446,54 +1455,47 @@ window.toggleMore = function(btn) {
 
 // ================== SOLUTION FILTERING FOR SHORT/EMPTY TEXT ==================
 function applySolutionFilter() {
-    const showAll = document.getElementById("showShortSolutions").checked;
-
+    const status = document.getElementById("statusFilter").value;
     const rows = document.querySelectorAll("#resultTable tbody tr");
+
     rows.forEach(row => {
-        const solutionCell = row.querySelector("td:nth-last-child(2)"); // Solution column based on index
+        const solutionCell = row.querySelector("td:nth-last-child(2)");
+        const queueCell = row.querySelector("td:last-child");
+
         if (!solutionCell) return;
 
-        const text = solutionCell.innerText.trim();
-        const wordCount = text.split(/\s+/).length;
+        const solutionText = solutionCell.innerText.trim().toUpperCase();
+        const queueText = queueCell ? queueCell.innerText.toUpperCase() : "";
 
-        // Default: hide if empty OR less than1 words
-        if (!showAll && (text === "-" || text === "" || wordCount < 1)) {
-            row.style.display = "none";
-        } else {
-            row.style.display = "";
+        // ---------- DETECT STATUS ----------
+        let rowStatus = "CLOSED";
+
+        if (solutionText === "" || solutionText === "-" || solutionText === "PENDING") {
+            rowStatus = "PENDING";
+        } 
+        else if (queueText.includes("FW") || queueText.includes("FORWARD")) {
+            rowStatus = "FORWARDED";
         }
+
+        // ---------- APPLY STATUS FILTER ----------
+        if (status !== "ALL" && rowStatus !== status) {
+            row.style.display = "none";
+            return;
+        }
+
+        // ---------- SHOW ROW ----------
+        row.style.display = "";
     });
 }
+
 
 // Run filter every time checkbox changes
 document.getElementById("showShortSolutions").addEventListener("change", () => {
     applySolutionFilter();
 });
-
-
-
-
-
-
-
-
-function calculateSimilarity(text, keywords) {
-    if (!text) return 0;
-
-    text = text.toLowerCase();
-    let score = 0;
-
-    keywords.forEach(word => {
-        if (text.includes(word)) score += 2; // direct match
-        if (text.startsWith(word)) score += 3;
-        if (text.indexOf(word) > 0 && text.indexOf(word) < 50) score += 1.5; // early match priority
-    });
-
-    return score;
-}
-
-
-
+document.getElementById("statusFilter").addEventListener("change", () => {
+    applySolutionFilter();
+});
 
 
 
@@ -1577,8 +1579,8 @@ function exportToCSV(filename = "solutions.csv") {
     // Determine visible columns (same logic as render)
     const visibleFields = Array.from(displayOptions).filter(o => o.checked).map(o => o.value);
     const cols = ["CALL_ID"];
-    if (visibleFields.includes("date")) cols.push("CALL_DATE");
-    if (visibleFields.includes("bankName")) cols.push("BANK_NAME");
+    if (visibleFields.includes("date")) cols.push("CLOSED_DATE");
+    if (visibleFields.includes("bankName")) cols.push("BANKNAME");
     if (visibleFields.includes("product")) cols.push("PRODUCT");
     if (visibleFields.includes("prodVersion")) cols.push("PROD_VERSION");
 
@@ -1617,8 +1619,8 @@ function exportToPDF() {
     // Build a printable HTML table (same columns visible)
     const visibleFields = Array.from(displayOptions).filter(o => o.checked).map(o => o.value);
     const cols = ["CALL_ID"];
-    if (visibleFields.includes("date")) cols.push("CALL_DATE");
-    if (visibleFields.includes("bankName")) cols.push("BANK_NAME");
+    if (visibleFields.includes("date")) cols.push("CLOSED_DATE");
+    if (visibleFields.includes("bankName")) cols.push("BANKNAME");
     if (visibleFields.includes("cms")) cols.push("CMS");
     if (visibleFields.includes("product")) cols.push("PRODUCT");
     if (visibleFields.includes("prodVersion")) cols.push("PROD_VERSION");
@@ -1837,17 +1839,6 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
 function makeLinksClickable(text) {
     return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
 }
-
-
-
-
-
-
-function logoutUser() {
-    localStorage.removeItem("loggedUser");   // Clear login
-    window.location.href = "/";              // Go to index page
-}
-
 
 
 
