@@ -1,116 +1,160 @@
+
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import mysql.connector
-from datetime import datetime
-import traceback
+import oracledb
 import re
+import traceback
+
+# -----------------------------
+# ORACLE CLIENT INIT (DEPLOY SAFE)
+# -----------------------------
+# For Render / Linux / Cloud
+# Set ORACLE_CLIENT_LIB in environment if needed
+oracle_lib = os.environ.get("ORACLE_CLIENT_LIB")
+if oracle_lib:
+    oracledb.init_oracle_client(lib_dir=oracle_lib)
 
 app = Flask(__name__, static_folder="static")
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-
+# -----------------------------
+# SERVE PAGES
+# -----------------------------
 @app.route("/")
 def login_page():
-    return send_from_directory("static", "index.html")
-
+    return send_from_directory("static", "login.html")
 
 @app.route("/home")
 def home_page():
     return send_from_directory("static", "home.html")
 
+# -----------------------------
+# ORACLE CONNECTION POOL (DEPLOY FRIENDLY)
+# -----------------------------
+pool = oracledb.create_pool(
+    user=os.environ.get("ORACLE_USER"),
+    password=os.environ.get("ORACLE_PASSWORD"),
+    dsn=os.environ.get("ORACLE_DSN"),
+    min=2,
+    max=5,
+    increment=1
+)
 
-# -----------------------------
-# DATABASE CONNECTION (LOCAL + DEPLOY)
-# -----------------------------
 def get_db():
-    return mysql.connector.connect(
-        host=os.environ.get("DB_HOST"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        database=os.environ.get("DB_NAME"),
-        port=int(os.environ.get("DB_PORT"))
-    )
+    return pool.acquire()
 
-
-# CLEAN ONLY EXTREME CHARACTERS – DO NOT REMOVE USEFUL WORDS
+# -----------------------------
+# CLEAN USER INPUT
+# -----------------------------
 def clean_problem_text(text):
     if not text:
         return ""
+    text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
+    return " ".join(text.split()).lower()
 
-    cleaned = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
-    cleaned = " ".join(cleaned.split()).strip().lower()
-    return cleaned
-
-
-@app.route("/api/tickets/search", methods=["GET"])
-def get_solution():
+# ============================================================
+# API : CALL DETAILS SEARCH (UNCHANGED LOGIC)
+# ============================================================
+@app.route("/api/tickets/CALL_DETAILS_VIEW", methods=["GET"])
+def get_from_call_details():
     try:
-        problem = request.args.get("problem", "").strip()
-        product = request.args.get("product", "").strip()
-        program = request.args.get("program", "").strip()
-        fromDate = request.args.get("fromDate", "").strip()
-        toDate = request.args.get("toDate", "").strip()
-
-        if problem:
-            problem = clean_problem_text(problem)
+        problem   = clean_problem_text(request.args.get("problem", ""))
+        product   = request.args.get("product", "").strip()
+        program   = request.args.get("program", "").strip()
+        fromDate  = request.args.get("fromDate", "").strip()
+        toDate    = request.args.get("toDate", "").strip()
+        bankName  = request.args.get("bankName", "").strip()
+        ticketId  = request.args.get("ticketId", "").strip()
+        solvedBy  = request.args.get("SOLVED_BY", "").strip()
+        callId    = request.args.get("callId", "").strip()
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor()
+        cursor.arraysize = 200
 
-        sql = "SELECT * FROM support_data WHERE 1=1"
-        params = []
+        sql = """
+        SELECT *
+        FROM (
+            SELECT a.*, ROW_NUMBER() OVER (ORDER BY CALL_ID DESC) rn
+            FROM CALL_DETAILS_VIEW a
+            WHERE 1=1
+        """
+        params = {}
 
+        # ---------------- MULTI WORD SEARCH ----------------
         if problem:
-            words = problem.split(" ")
-            for w in words:
+            words = problem.split()
+            idx = 0
+            for w in words[:4]:
                 if len(w) >= 3:
-                    sql += " AND LOWER(CALL_DETAILS) LIKE %s"
-                    params.append(f"%{w}%")
+                    sql += f"""
+                        AND (
+                            LOWER(CALL_DETAILS) LIKE :w{idx}
+                            OR LOWER(SOLUTION_DETAILS) LIKE :w{idx}
+                        )
+                    """
+                    params[f"w{idx}"] = f"%{w}%"
+                    idx += 1
 
+        # ---------------- FILTERS ----------------
         if product:
-            sql += " AND LOWER(PRODUCT) LIKE LOWER(%s)"
-            params.append(f"%{product}%")
+            sql += " AND LOWER(PRODUCT) LIKE LOWER(:product)"
+            params["product"] = f"%{product}%"
 
         if program:
-            sql += " AND PROGRAM = %s"
-            params.append(program)
+            sql += " AND PROGRAM = :program"
+            params["program"] = program
+
+        if bankName:
+            sql += " AND LOWER(BANKNAME) LIKE LOWER(:bankName)"
+            params["bankName"] = f"%{bankName}%"
+
+        if ticketId:
+            sql += " AND TICKET_ID = :ticketId"
+            params["ticketId"] = ticketId
+
+        if solvedBy:
+            sql += " AND LOWER(SOLVED_BY) LIKE LOWER(:solvedBy)"
+            params["solvedBy"] = f"%{solvedBy}%"
+
+        if callId:
+            sql += " AND CALL_ID = :callId"
+            params["callId"] = callId
 
         if fromDate and toDate:
             sql += """
-                AND STR_TO_DATE(CALL_DATE, '%m-%d-%Y')
-                BETWEEN STR_TO_DATE(%s, '%Y-%m-%d')
-                AND STR_TO_DATE(%s, '%Y-%m-%d')
+            AND CLOSED_DATE BETWEEN
+                TO_DATE(:fromDate, 'YYYY-MM-DD')
+            AND TO_DATE(:toDate, 'YYYY-MM-DD') + 1
             """
-            params.extend([fromDate, toDate])
+            params["fromDate"] = fromDate
+            params["toDate"] = toDate
+
+        sql += """
+        )
+        WHERE rn <= 2000
+        """
 
         cursor.execute(sql, params)
+
         rows = cursor.fetchall()
+        columns = [c[0] for c in cursor.description]
+        data = [dict(zip(columns, row)) for row in rows]
 
         cursor.close()
         db.close()
 
-        return jsonify(rows)
+        return jsonify(data)
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-
-@app.route("/test-db")
-def test_db():
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1")
-        return {"message": "Database Connected Successfully!"}
-    except Exception as e:
-        return {"error": str(e)}, 500
-
-
 # -----------------------------
-# DEPLOYMENT-FRIENDLY RUNNER
+# DEPLOYMENT RUNNER
 # -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
+    print("🔥 Oracle Flask API running (DEPLOY MODE)")
     app.run(host="0.0.0.0", port=port)
