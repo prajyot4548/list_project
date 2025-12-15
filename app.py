@@ -12,8 +12,9 @@ import traceback
 # For Render / Linux / Cloud
 # Set ORACLE_CLIENT_LIB in environment if needed
 oracle_lib = os.environ.get("ORACLE_CLIENT_LIB")
-if oracle_lib:
+if oracle_lib and not oracledb.is_thin_mode():
     oracledb.init_oracle_client(lib_dir=oracle_lib)
+
 
 app = Flask(__name__, static_folder="static")
 CORS(app, resources={r"/*": {"origins": "*"}})
