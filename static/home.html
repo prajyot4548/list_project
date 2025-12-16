@@ -1161,8 +1161,9 @@ if (filters.problem) {
 
 
 
-      const from = filters.fromDate ? new Date(filters.fromDate) : null;
-      const to = filters.toDate ? new Date(filters.toDate) : null;
+     const from = filters.fromDate ? new Date(filters.fromDate + "T00:00:00") : null;
+const to   = filters.toDate   ? new Date(filters.toDate   + "T23:59:59") : null;
+
 
       // Date filtering on CALL_DATE
       if (from || to) {

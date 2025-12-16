@@ -91,13 +91,19 @@ def search_tickets():
                     params.append(f"%{w}%")
 
         # ---- DATE FILTER (SAFE TEXT COMPARE) ----
-        if fromDate:
-            sql += " AND CALL_DATE >= %s"
-            params.append(fromDate)
+        # ---- DATE FILTER (MM-DD-YYYY SAFE) ----
+                if fromDate:
+                    sql += """
+                         AND STR_TO_DATE(CALL_DATE, '%m-%d-%Y') >= STR_TO_DATE(%s, '%Y-%m-%d')
+                    """
+                    params.append(fromDate)
 
-        if toDate:
-            sql += " AND CALL_DATE <= %s"
-            params.append(toDate)
+                if toDate:
+                   sql += """
+                         AND STR_TO_DATE(CALL_DATE, '%m-%d-%Y') <= STR_TO_DATE(%s, '%Y-%m-%d')
+                    """
+                   params.append(toDate)
+
 
         # ---- ORDER + LIMIT (SAFE & FAST) ----
         if params:
