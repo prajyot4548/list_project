@@ -1165,26 +1165,7 @@ if (filters.problem) {
 const to   = filters.toDate   ? new Date(filters.toDate   + "T23:59:59") : null;
 
 
-      // Date filtering on CALL_DATE
-      if (from || to) {
-        tickets = tickets.filter(t => {
-          if (!t.CALL_DATE) return false;
-          const d = parseCallDate(t.CALL_DATE);
-          if (!d) return false;
-
-          if (from && !to)
-            return d.toISOString().split("T")[0] === from.toISOString().split("T")[0];
-
-          if (!from && to) return d <= to;
-
-          if (from && to) return d >= from && d <= to;
-
-          return true;
-        });
-      }
-
-    
-
+   
 
 // ----------------- RESULT CONDITIONS -----------------
 // ----------------- RESULT CONDITIONS -----------------
@@ -1670,16 +1651,7 @@ if (!window.isSorting) {
   // ==============================
   //   FIRST TICKET AUTO HIGHLIGHT
   // ==============================
-  function highlightFirstTicket() {
-    setTimeout(() => {
-      const first = document.getElementById("ticket-0");
-      if (first) {
-        first.style.border = "2px solid #28a745";
-        first.style.boxShadow = "0 0 10px rgba(40,167,69,.5)";
-        first.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }, 200);
-  }
+ 
 
   // CLEAR FILTERS
   window.clearFilters = () => {
