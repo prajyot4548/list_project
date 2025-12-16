@@ -536,7 +536,7 @@ footer {
   border-bottom-right-radius: 4px;
 }
 
-.chat-body p.bot {
+chat-body p.bot {
   background: #e9ecef;
   color: #212529;
   border-bottom-left-radius: 4px;
@@ -877,7 +877,7 @@ footer {
 
 
 
-const API_BASE = "";
+       const API_BASE = "https://list-project-16.onrender.com";
 
 
 
@@ -1060,6 +1060,12 @@ problemForm.addEventListener("submit", async (e) => {
   // ==============================
   async function fetchSolutions(problemText, filters) {
 
+// If user enters only numbers → treat as CALL ID search (unique)
+if (/^\d+$/.test(problemText)) {
+    const callId = problemText.replace(/,/g, "");
+    await fetchCallIdDirect(callId);
+    return; // stop normal filtering process
+}
 
 
 
@@ -1075,18 +1081,12 @@ problemForm.addEventListener("submit", async (e) => {
       const params = new URLSearchParams();
 
       params.append("username", localStorage.getItem("loggedUser") || "Unknown");
-function addFilter(key, value) {
-  if (value !== undefined && value !== null && value.toString().trim() !== "") {
 
-    // 🔥 NORMALIZE TICKET ID (comma / no comma both work)
-    if (key === "ticketId") {
-      value = value.replace(/[^0-9]/g, "");
-    }
-
-    params.append(key, value.trim());
-  }
-}
-
+      function addFilter(key, value) {
+        if (value !== undefined && value !== null && value.toString().trim() !== "") {
+          params.append(key, value.trim());
+        }
+      }
 
       addFilter("fromDate", filters.fromDate);
       addFilter("toDate", filters.toDate);
@@ -1151,32 +1151,84 @@ if (filters.problem) {
 
 
 
- 
+
+      // Program filter on PROGRAM column (numeric code)
+      if (filters.program) {
+        const progExact = filters.program.trim();
+        tickets = tickets.filter(t => String(t.PROGRAM || "").trim() === progExact);
+      }
+      // ✅ Ticket ID filter apply here
+if (filters.ticketId) {
+  tickets = tickets.filter(t => 
+    String(t.TICKET_ID || "").trim() === filters.ticketId
+  );
+}
 
 
+      const from = filters.fromDate ? new Date(filters.fromDate) : null;
+      const to = filters.toDate ? new Date(filters.toDate) : null;
 
-     const from = filters.fromDate ? new Date(filters.fromDate + "T00:00:00") : null;
-const to   = filters.toDate   ? new Date(filters.toDate   + "T23:59:59") : null;
+      // Date filtering on CALL_DATE
+      if (from || to) {
+        tickets = tickets.filter(t => {
+          if (!t.CALL_DATE) return false;
+          const d = parseCallDate(t.CALL_DATE);
+          if (!d) return false;
 
+          if (from && !to)
+            return d.toISOString().split("T")[0] === from.toISOString().split("T")[0];
 
-   
+          if (!from && to) return d <= to;
+
+          if (from && to) return d >= from && d <= to;
+
+          return true;
+        });
+      }
+
+      // ----------- 🔍 SMART MATCHING + FALLBACK SEARCH -----------
+
+const keywords = (filters.problem || "").toLowerCase().split(" ").filter(x => x.length > 2);
+
+// Score similarity for each ticket
+tickets = tickets.map(t => {
+    const combinedText = `${t.CALL_DETAILS || ""} ${t.SOLUTION_DETAILS || ""}`.toLowerCase();
+    let score = 0;
+
+    keywords.forEach(word => {
+        if (combinedText.includes(word)) score += 2;
+        if (combinedText.startsWith(word)) score += 3;
+        if (combinedText.indexOf(word) > 0 && combinedText.indexOf(word) < 50) score += 1;
+    });
+
+    return { ...t, _score: score };
+});
+
+// Sort by best match
+tickets.sort((a, b) => b._score - a._score);
+
+// Show only results that have some relevance
+const filtered = tickets.filter(t => t._score > 0);
+
 
 // ----------------- RESULT CONDITIONS -----------------
-// ----------------- RESULT CONDITIONS -----------------
 
-if (!tickets || tickets.length === 0) {
+if (filtered.length === 0) {
 
     solutionBox.innerHTML = `
         <div style="padding:12px; background:#fff3cd; border-radius:10px; border:1px solid #ffc107;">
-            <strong>⚠ No results found.</strong>
+            <strong>⚠ No exact result found.</strong><br>
+            Showing closest related solutions instead:
         </div>
+        <br/>
     `;
-    lastTickets = [];
-    return;
+
+    // Even no match → still show full DB sorted by relevance
+    lastTickets = tickets.slice(0, 20); // top 20 similar
+} else {
+    lastTickets = filtered;
 }
 
-// ✅ normal success
-lastTickets = tickets;
 renderTickets(lastTickets, filters.problem);
 highlightFirstTicket();
 
@@ -1186,16 +1238,45 @@ highlightFirstTicket();
 
 
 
+
     } catch (err) {
-  console.error("❌ Fetch Error:", err);
-  solutionBox.innerHTML = `
-    <div style="padding:12px; background:#f8d7da; border-radius:10px; border:1px solid #dc3545;">
-      <strong>⚠ Unable to fetch data.</strong><br/>
-      Please adjust filters or try again.
-    </div>
-  `;
-}
+      console.error("❌ Fetch Error:", err);
+solutionBox.innerHTML =
+  `<p style="color:red;">⚠️ Server error. Please check logs.</p>`;
+    }
   }
+
+
+async function fetchTicketIdDirect(ticketId) {
+    solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
+
+    try {
+const response = await fetch(`${API_BASE}/api/tickets/support_data?TICKET_ID=${ticketId}`);
+
+        if (!response.ok) throw new Error("Server error");
+
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            solutionBox.innerHTML = `<p style="color:red;">❌ No record found for Ticket ID: <b>${ticketId}</b></p>`;
+            return;
+        }
+
+        lastTickets = data;
+        renderTickets(data, `Ticket ID: ${ticketId}`);
+
+        highlightFirstTicket();
+    } catch (err) {
+        solutionBox.innerHTML = `<p style="color:red;">⚠ Unable to fetch record.</p>`;
+        console.error(err);
+    }
+}
+
+
+
+
+
+
 
 
 
@@ -1444,48 +1525,53 @@ function highlightFirstTicket() {
     setTimeout(() => {
       const first = document.getElementById("ticket-0");
       if (first) {
-        activeRowIndex = 0;
-        first.classList.add("ticket-active");
+        activeRowIndex = 0;                  // <--- IMPORTANT: make Enter work immediately
+        first.style.border = "2px solid #28a745";
+        first.style.boxShadow = "0 0 10px rgba(40,167,69,0.15)";
         first.scrollIntoView({ behavior: "smooth", block: "center" });
+        enableRowHighlight();
       }
     }, 200);
 }
 
-
 // --------- REPLACEMENT: keydown handler (Enter opens CALL_ID then CMS fallback) ----------
-// ==============================
-//   KEYBOARD ARROW NAVIGATION
-// ==============================
-// ==============================
-//   KEYBOARD ARROW NAVIGATION
-// ==============================
 document.addEventListener("keydown", (e) => {
-  const rows = document.querySelectorAll(".ticket-row");
-  if (rows.length === 0) return;
+    const rows = document.querySelectorAll(".ticket-row");
+    if (rows.length === 0) return;
 
-  switch (e.key) {
-    case "ArrowDown":
-      e.preventDefault();
-      activeRowIndex++;
-      enableRowHighlight();
-      break;
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        activeRowIndex = Math.min(activeRowIndex + 1, rows.length - 1);
+        enableRowHighlight();
+        break;
 
-    case "ArrowUp":
-      e.preventDefault();
-      activeRowIndex--;
-      enableRowHighlight();
-      break;
+      case "ArrowUp":
+        e.preventDefault();
+        activeRowIndex = Math.max(activeRowIndex - 1, 0);
+        enableRowHighlight();
+        break;
 
-    case "Enter":
-      e.preventDefault();
-      const row = rows[activeRowIndex];
-      if (!row) break;
-      const cmsLink = row.querySelector("a");
-      if (cmsLink) window.open(cmsLink.href, "_blank");
-      break;
-  }
+      case "Enter":
+        e.preventDefault();
+        const row = rows[activeRowIndex];
+        if (!row) break;
+
+        // Prefer opening CALL_ID link first
+        const callLink = row.querySelector("a.call-link");
+        if (callLink && callLink.href) {
+          window.open(callLink.href, "_blank");
+          break;
+        }
+
+        // fallback: open cms link
+        const cmsLink = row.querySelector("a.cms-link");
+        if (cmsLink && cmsLink.href) {
+          window.open(cmsLink.href, "_blank");
+        }
+        break;
+    }
 });
-
 // ------------- EXPORT CSV (Excel-friendly) -------------
 function exportToCSV(filename = "solutions.csv") {
     if (!lastTickets || lastTickets.length === 0) {
@@ -1645,7 +1731,16 @@ if (!window.isSorting) {
   // ==============================
   //   FIRST TICKET AUTO HIGHLIGHT
   // ==============================
- 
+  function highlightFirstTicket() {
+    setTimeout(() => {
+      const first = document.getElementById("ticket-0");
+      if (first) {
+        first.style.border = "2px solid #28a745";
+        first.style.boxShadow = "0 0 10px rgba(40,167,69,.5)";
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 200);
+  }
 
   // CLEAR FILTERS
   window.clearFilters = () => {
@@ -1722,20 +1817,25 @@ if (!window.isSorting) {
 // ==== LOGIN PAGE JS ====
 
 // When login form is submitted
-const loginForm = document.getElementById("loginForm");
-if (loginForm) {
-  loginForm.addEventListener("submit", function(e) {
+document.getElementById("loginForm").addEventListener("submit", function(e) {
     e.preventDefault();
+
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
-    if (!user || !pass) {
-      alert("Please enter username and password.");
-      return;
+
+    // ---- SIMPLE LOGIN (NO BACKEND NEEDED) ----
+    if (user === "" || pass === "") {
+        alert("Please enter username and password.");
+        return;
     }
+
+    // Save logged user in browser
     localStorage.setItem("loggedUser", user);
+
+    // Redirect to home.html
     window.location.href = "home.html";
-  });
-}
+});
+
 
 
 

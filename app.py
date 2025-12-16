@@ -6,7 +6,7 @@ import traceback
 import re
 
 app = Flask(__name__, static_folder="static")
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # -----------------------------
 # PAGES
@@ -29,8 +29,15 @@ def get_db():
         password=os.environ.get("DB_PASSWORD"),
         database=os.environ.get("DB_NAME"),
         port=int(os.environ.get("DB_PORT")),
-        autocommit=True
+        connection_timeout=10
     )
+
+# -----------------------------
+# CLEAN TEXT
+# -----------------------------
+def clean_problem_text(text):
+    text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
+    return " ".join(text.split()).lower()
 
 # -----------------------------
 # SEARCH API
@@ -38,83 +45,66 @@ def get_db():
 @app.route("/api/tickets/search", methods=["GET"])
 def search_tickets():
     try:
-        problem   = request.args.get("problem", "").strip().lower()
-        product   = request.args.get("product", "").strip().lower()
-        program   = request.args.get("program", "").strip()   # NUMBER FROM UI
-        bankName  = request.args.get("bankName", "").strip().lower()
+        problem   = request.args.get("problem", "").strip()
+        product   = request.args.get("product", "").strip()
+        program   = request.args.get("program", "").strip()
+        bankName  = request.args.get("bankName", "").strip()
         ticketId  = request.args.get("ticketId", "").strip()
         fromDate  = request.args.get("fromDate", "").strip()
         toDate    = request.args.get("toDate", "").strip()
 
+        if problem:
+            problem = clean_problem_text(problem)
+
         db = get_db()
         cursor = db.cursor(dictionary=True)
 
-        sql = """
-        SELECT
-            `ï»¿CALL_ID`,
-            TICKET_ID,
-            CALL_DATE,
-            BANK_NAME,
-            PRODUCT,
-            PROGRAM,
-            CALL_DETAILS,
-            SOLUTION_DETAILS,
-            QUEUE
-        FROM solutions.support_data
-        WHERE 1=1
-        """
+        sql = "SELECT * FROM solutions.support_data WHERE 1=1"
         params = []
 
-        # ---- TICKET ID ----
         if ticketId:
-            sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
-            params.append(re.sub(r"[^0-9]", "", ticketId))
+            sql += " AND TRIM(TICKET_ID) = %s"
+            params.append(ticketId)
 
-        # ---- BANK NAME ----
         if bankName:
-            sql += " AND BANK_NAME IS NOT NULL AND LOWER(BANK_NAME) LIKE %s"
-            params.append(f"%{bankName}%")
+            sql += " AND LOWER(BANK_NAME) LIKE %s"
+            params.append(f"%{bankName.lower()}%")
 
-        # ---- PRODUCT ----
         if product:
-            sql += " AND PRODUCT IS NOT NULL AND LOWER(PRODUCT) LIKE %s"
-            params.append(f"%{product}%")
+            sql += " AND LOWER(PRODUCT) LIKE %s"
+            params.append(f"%{product.lower()}%")
 
-       
-   # ---- PROGRAM FIX (INT + TEXT SAFE) ----
-        if program.isdigit():
-           sql += " AND CAST(PROGRAM AS CHAR) LIKE %s"
-           params.append(f"%{program}%")
+        if program:
+            sql += " AND PROGRAM = %s"
+            params.append(program)
 
-        # ---- PROBLEM TEXT ----
         if problem:
             for w in problem.split():
                 if len(w) >= 3:
-                    sql += " AND CALL_DETAILS IS NOT NULL AND LOWER(CALL_DETAILS) LIKE %s"
+                    sql += " AND LOWER(CALL_DETAILS) LIKE %s"
                     params.append(f"%{w}%")
 
-        # ---- DATE FILTER (MM-DD-YYYY SAFE) ----
         if fromDate:
-            sql += """
-            AND CALL_DATE IS NOT NULL
-            AND STR_TO_DATE(
-                CONCAT(SUBSTRING(CALL_DATE,1,10),' 00:00:00'),
-                '%m-%d-%Y %H:%i:%s'
-            ) >= STR_TO_DATE(%s,'%Y-%m-%d')
-            """
+            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') >= STR_TO_DATE(%s,'%Y-%m-%d')"
             params.append(fromDate)
 
         if toDate:
-            sql += """
-            AND CALL_DATE IS NOT NULL
-            AND STR_TO_DATE(
-                CONCAT(SUBSTRING(CALL_DATE,1,10),' 23:59:59'),
-                '%m-%d-%Y %H:%i:%s'
-            ) <= STR_TO_DATE(%s,'%Y-%m-%d')
-            """
+            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') <= STR_TO_DATE(%s,'%Y-%m-%d')"
             params.append(toDate)
 
-        sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
+
+
+
+
+        # ✅ FIXED ORDER BY
+# ---- ORDER & LIMIT (SAFE) ----
+            if params:
+               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
+            else:
+               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 100"
+     
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
 
         cursor.execute(sql, params)
         rows = cursor.fetchall()
@@ -128,8 +118,9 @@ def search_tickets():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+
 # -----------------------------
-# RUN
+# RUN (RENDER SAFE)
 # -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
