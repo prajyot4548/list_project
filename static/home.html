@@ -877,7 +877,7 @@ chat-body p.bot {
 
 
 
-       const API_BASE = "https://list-project-16.onrender.com";
+const API_BASE = window.location.origin;
 
 
 
@@ -1060,12 +1060,6 @@ problemForm.addEventListener("submit", async (e) => {
   // ==============================
   async function fetchSolutions(problemText, filters) {
 
-// If user enters only numbers → treat as CALL ID search (unique)
-if (/^\d+$/.test(problemText)) {
-    const callId = problemText.replace(/,/g, "");
-    await fetchCallIdDirect(callId);
-    return; // stop normal filtering process
-}
 
 
 
@@ -1163,12 +1157,13 @@ if (filters.problem) {
         const progExact = filters.program.trim();
         tickets = tickets.filter(t => String(t.PROGRAM || "").trim() === progExact);
       }
-      // ✅ Ticket ID filter apply here
+ // ✅ Ticket ID filter apply here
 if (filters.ticketId) {
   tickets = tickets.filter(t => 
     String(t.TICKET_ID || "").trim() === filters.ticketId
   );
 }
+
 
 
       const from = filters.fromDate ? new Date(filters.fromDate) : null;
@@ -1192,29 +1187,7 @@ if (filters.ticketId) {
         });
       }
 
-      // ----------- 🔍 SMART MATCHING + FALLBACK SEARCH -----------
-
-const keywords = (filters.problem || "").toLowerCase().split(" ").filter(x => x.length > 2);
-
-// Score similarity for each ticket
-tickets = tickets.map(t => {
-    const combinedText = `${t.CALL_DETAILS || ""} ${t.SOLUTION_DETAILS || ""}`.toLowerCase();
-    let score = 0;
-
-    keywords.forEach(word => {
-        if (combinedText.includes(word)) score += 2;
-        if (combinedText.startsWith(word)) score += 3;
-        if (combinedText.indexOf(word) > 0 && combinedText.indexOf(word) < 50) score += 1;
-    });
-
-    return { ...t, _score: score };
-});
-
-// Sort by best match
-tickets.sort((a, b) => b._score - a._score);
-
-// Show only results that have some relevance
-const filtered = tickets.filter(t => t._score > 0);
+    
 
 
 // ----------------- RESULT CONDITIONS -----------------
@@ -1251,38 +1224,6 @@ solutionBox.innerHTML =
   `<p style="color:red;">⚠️ Server error. Please check logs.</p>`;
     }
   }
-
-
-async function fetchTicketIdDirect(ticketId) {
-    solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
-
-    try {
-const response = await fetch(`${API_BASE}/api/tickets/support_data?TICKET_ID=${ticketId}`);
-
-        if (!response.ok) throw new Error("Server error");
-
-        const data = await response.json();
-
-        if (!data || data.length === 0) {
-            solutionBox.innerHTML = `<p style="color:red;">❌ No record found for Ticket ID: <b>${ticketId}</b></p>`;
-            return;
-        }
-
-        lastTickets = data;
-        renderTickets(data, `Ticket ID: ${ticketId}`);
-
-        highlightFirstTicket();
-    } catch (err) {
-        solutionBox.innerHTML = `<p style="color:red;">⚠ Unable to fetch record.</p>`;
-        console.error(err);
-    }
-}
-
-
-
-
-
-
 
 
 
