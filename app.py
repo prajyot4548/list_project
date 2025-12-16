@@ -62,7 +62,7 @@ def search_tickets():
         sql = "SELECT * FROM solutions.support_data WHERE 1=1"
         params = []
 
-        # ---- TICKET ID (comma safe) ----
+        # ---- TICKET ID (comma / no comma safe) ----
         if ticketId:
             clean_ticket = re.sub(r"[^0-9]", "", ticketId)
             sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
@@ -83,29 +83,42 @@ def search_tickets():
             sql += " AND PROGRAM = %s"
             params.append(program)
 
-        # ---- PROBLEM SEARCH ----
+
+# ---- PROBLEM SEARCH ----
         if problem:
-            for w in problem.split():
-                if len(w) >= 3:
-                    sql += " AND LOWER(CALL_DETAILS) LIKE %s"
-                    params.append(f"%{w}%")
+           for w in problem.split():
+               if len(w) >= 3:
+                  sql += " AND LOWER(CALL_DETAILS) LIKE %s"
+                  params.append(f"%{w}%")
 
-        # ---- DATE FILTER (SAFE TEXT COMPARE) ----
-        # ---- DATE FILTER (MM-DD-YYYY SAFE) ----
-                if fromDate:
-                    sql += """
-                         AND STR_TO_DATE(CALL_DATE, '%m-%d-%Y') >= STR_TO_DATE(%s, '%Y-%m-%d')
-                    """
-                    params.append(fromDate)
+# ---- DATE FILTER (MM-DD-YYYY WITH TIME SAFE) ----
+        # ---- DATE FILTER (MM-DD-YYYY WITH / WITHOUT TIME SAFE) ----
+        if fromDate:
+           sql += """
+        AND STR_TO_DATE(
+            CASE
+                WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
+                ELSE CONCAT(CALL_DATE, ' 00:00:00')
+            END,
+            '%m-%d-%Y %H:%i:%s'
+        ) >= STR_TO_DATE(%s, '%Y-%m-%d')
+    """
+           params.append(fromDate)
 
-                if toDate:
-                   sql += """
-                         AND STR_TO_DATE(CALL_DATE, '%m-%d-%Y') <= STR_TO_DATE(%s, '%Y-%m-%d')
-                    """
-                   params.append(toDate)
+        if toDate:
+           sql += """
+        AND STR_TO_DATE(
+            CASE
+                WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
+                ELSE CONCAT(CALL_DATE, ' 23:59:59')
+            END,
+            '%m-%d-%Y %H:%i:%s'
+        ) <= STR_TO_DATE(%s, '%Y-%m-%d')
+    """
+           params.append(toDate)
 
 
-        # ---- ORDER + LIMIT (SAFE & FAST) ----
+        # ---- ORDER + LIMIT ----
         if params:
             sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
         else:
@@ -119,9 +132,10 @@ def search_tickets():
 
         return jsonify(rows)
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         return jsonify({"error": "Backend error"}), 500
+
 
 # -----------------------------
 # RUN
