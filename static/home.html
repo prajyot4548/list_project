@@ -536,7 +536,7 @@ footer {
   border-bottom-right-radius: 4px;
 }
 
-chat-body p.bot {
+.chat-body p.bot {
   background: #e9ecef;
   color: #212529;
   border-bottom-left-radius: 4px;
@@ -1186,26 +1186,23 @@ if (filters.problem) {
 
 
 // ----------------- RESULT CONDITIONS -----------------
+// ----------------- RESULT CONDITIONS -----------------
 
-if (filtered.length === 0) {
+if (!tickets || tickets.length === 0) {
 
     solutionBox.innerHTML = `
         <div style="padding:12px; background:#fff3cd; border-radius:10px; border:1px solid #ffc107;">
-            <strong>⚠ No exact result found.</strong><br>
-            Showing closest related solutions instead:
+            <strong>⚠ No results found.</strong>
         </div>
-        <br/>
     `;
-
-    // Even no match → still show full DB sorted by relevance
-    lastTickets = tickets.slice(0, 20); // top 20 similar
-} else {
-    lastTickets = filtered;
+    lastTickets = [];
+    return;
 }
 
+// ✅ normal success
+lastTickets = tickets;
 renderTickets(lastTickets, filters.problem);
 highlightFirstTicket();
-
 
 
 
@@ -1467,14 +1464,13 @@ function highlightFirstTicket() {
     setTimeout(() => {
       const first = document.getElementById("ticket-0");
       if (first) {
-        activeRowIndex = 0;                  // <--- IMPORTANT: make Enter work immediately
-        first.style.border = "2px solid #28a745";
-        first.style.boxShadow = "0 0 10px rgba(40,167,69,0.15)";
+        activeRowIndex = 0;
+        first.classList.add("ticket-active");
         first.scrollIntoView({ behavior: "smooth", block: "center" });
-        enableRowHighlight();
       }
     }, 200);
 }
+
 
 // --------- REPLACEMENT: keydown handler (Enter opens CALL_ID then CMS fallback) ----------
 document.addEventListener("keydown", (e) => {
@@ -1759,25 +1755,20 @@ if (!window.isSorting) {
 // ==== LOGIN PAGE JS ====
 
 // When login form is submitted
-document.getElementById("loginForm").addEventListener("submit", function(e) {
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+  loginForm.addEventListener("submit", function(e) {
     e.preventDefault();
-
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
-
-    // ---- SIMPLE LOGIN (NO BACKEND NEEDED) ----
-    if (user === "" || pass === "") {
-        alert("Please enter username and password.");
-        return;
+    if (!user || !pass) {
+      alert("Please enter username and password.");
+      return;
     }
-
-    // Save logged user in browser
     localStorage.setItem("loggedUser", user);
-
-    // Redirect to home.html
     window.location.href = "home.html";
-});
-
+  });
+}
 
 
 
