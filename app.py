@@ -59,7 +59,7 @@ def search_tickets():
         db = get_db()
         cursor = db.cursor(dictionary=True)
 
-        sql = "SELECT * FROM solutions.support_data WHERE 1=1"
+        sql = "SELECT `ï»¿CALL_ID`,TICKET_ID, CALL_DATE, BANK_NAME, PRODUCT, PROGRAM, CALL_DETAILS, SOLUTION_DETAILS, QUEUE FROM solutions.support_data WHERE 1=1"
         params = []
 
         # ---- TICKET ID (comma / no comma safe) ----

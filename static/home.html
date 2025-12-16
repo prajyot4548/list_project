@@ -877,7 +877,7 @@ footer {
 
 
 
-const API_BASE = window.location.origin;
+const API_BASE = "";
 
 
 
@@ -1455,43 +1455,39 @@ function highlightFirstTicket() {
 
 
 // --------- REPLACEMENT: keydown handler (Enter opens CALL_ID then CMS fallback) ----------
+// ==============================
+//   KEYBOARD ARROW NAVIGATION
+// ==============================
+// ==============================
+//   KEYBOARD ARROW NAVIGATION
+// ==============================
 document.addEventListener("keydown", (e) => {
-    const rows = document.querySelectorAll(".ticket-row");
-    if (rows.length === 0) return;
+  const rows = document.querySelectorAll(".ticket-row");
+  if (rows.length === 0) return;
 
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        activeRowIndex = Math.min(activeRowIndex + 1, rows.length - 1);
-        enableRowHighlight();
-        break;
+  switch (e.key) {
+    case "ArrowDown":
+      e.preventDefault();
+      activeRowIndex++;
+      enableRowHighlight();
+      break;
 
-      case "ArrowUp":
-        e.preventDefault();
-        activeRowIndex = Math.max(activeRowIndex - 1, 0);
-        enableRowHighlight();
-        break;
+    case "ArrowUp":
+      e.preventDefault();
+      activeRowIndex--;
+      enableRowHighlight();
+      break;
 
-      case "Enter":
-        e.preventDefault();
-        const row = rows[activeRowIndex];
-        if (!row) break;
-
-        // Prefer opening CALL_ID link first
-        const callLink = row.querySelector("a.call-link");
-        if (callLink && callLink.href) {
-          window.open(callLink.href, "_blank");
-          break;
-        }
-
-        // fallback: open cms link
-        const cmsLink = row.querySelector("a.cms-link");
-        if (cmsLink && cmsLink.href) {
-          window.open(cmsLink.href, "_blank");
-        }
-        break;
-    }
+    case "Enter":
+      e.preventDefault();
+      const row = rows[activeRowIndex];
+      if (!row) break;
+      const cmsLink = row.querySelector("a");
+      if (cmsLink) window.open(cmsLink.href, "_blank");
+      break;
+  }
 });
+
 // ------------- EXPORT CSV (Excel-friendly) -------------
 function exportToCSV(filename = "solutions.csv") {
     if (!lastTickets || lastTickets.length === 0) {
