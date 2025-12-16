@@ -1157,12 +1157,7 @@ if (filters.problem) {
         const progExact = filters.program.trim();
         tickets = tickets.filter(t => String(t.PROGRAM || "").trim() === progExact);
       }
- // ✅ Ticket ID filter apply here
-if (filters.ticketId) {
-  tickets = tickets.filter(t => 
-    String(t.TICKET_ID || "").trim() === filters.ticketId
-  );
-}
+ 
 
 
 

@@ -1,12 +1,10 @@
-import os
+import os, re, traceback
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import mysql.connector
-import traceback
-import re
 
 app = Flask(__name__, static_folder="static")
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 # -----------------------------
 # PAGES
@@ -20,60 +18,53 @@ def home_page():
     return send_from_directory("static", "home.html")
 
 # -----------------------------
-# DATABASE CONNECTION
+# DB CONNECTION
 # -----------------------------
 def get_db():
     return mysql.connector.connect(
-        host=os.environ.get("DB_HOST"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        database=os.environ.get("DB_NAME"),
-        port=int(os.environ.get("DB_PORT")),
-        connection_timeout=10
+        host=os.environ["DB_HOST"],
+        user=os.environ["DB_USER"],
+        password=os.environ["DB_PASSWORD"],
+        database=os.environ["DB_NAME"],
+        port=int(os.environ["DB_PORT"]),
+        autocommit=True
     )
 
 # -----------------------------
-# CLEAN TEXT
-# -----------------------------
-def clean_problem_text(text):
-    text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
-    return " ".join(text.split()).lower()
-
-# -----------------------------
-# SEARCH API
+# SEARCH API (FAST & SAFE)
 # -----------------------------
 @app.route("/api/tickets/search", methods=["GET"])
 def search_tickets():
     try:
-        problem   = request.args.get("problem", "").strip()
-        product   = request.args.get("product", "").strip()
-        program   = request.args.get("program", "").strip()
-        bankName  = request.args.get("bankName", "").strip()
-        ticketId  = request.args.get("ticketId", "").strip()
-        fromDate  = request.args.get("fromDate", "").strip()
-        toDate    = request.args.get("toDate", "").strip()
+        args = request.args
 
-        if problem:
-            problem = clean_problem_text(problem)
+        ticketId = re.sub(r"[^0-9]", "", args.get("ticketId", ""))
+        bankName = args.get("bankName", "").strip().lower()
+        product  = args.get("product", "").strip().lower()
+        program  = args.get("program", "").strip()
+        problem  = args.get("problem", "").strip().lower()
+        fromDate = args.get("fromDate", "")
+        toDate   = args.get("toDate", "")
 
-        db = get_db()
-        cursor = db.cursor(dictionary=True)
-
-        sql = "SELECT * FROM solutions.support_data WHERE 1=1"
+        sql = """
+        SELECT *
+        FROM support_data
+        WHERE 1=1
+        """
         params = []
 
+        # 🔥 Ticket ID (FAST & SAFE)
         if ticketId:
-           sql += " AND REPLACE(TRIM(TICKET_ID), ',', '') = %s"
-           params.append(re.sub(r'[^0-9]', '', ticketId))
-
+            sql += " AND REPLACE(`TICKET_ID`, ',', '') = %s"
+            params.append(ticketId)
 
         if bankName:
             sql += " AND LOWER(BANK_NAME) LIKE %s"
-            params.append(f"%{bankName.lower()}%")
+            params.append(f"%{bankName}%")
 
         if product:
             sql += " AND LOWER(PRODUCT) LIKE %s"
-            params.append(f"%{product.lower()}%")
+            params.append(f"%{product}%")
 
         if program:
             sql += " AND PROGRAM = %s"
@@ -85,32 +76,23 @@ def search_tickets():
                     sql += " AND LOWER(CALL_DETAILS) LIKE %s"
                     params.append(f"%{w}%")
 
+        # DATE FILTER (safe with your text dates)
         if fromDate:
-            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') >= STR_TO_DATE(%s,'%Y-%m-%d')"
+            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') >= %s"
             params.append(fromDate)
 
         if toDate:
-            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') <= STR_TO_DATE(%s,'%Y-%m-%d')"
+            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') <= %s"
             params.append(toDate)
 
+        # ✅ ORDER USING YOUR EXISTING COLUMN
+        sql += " ORDER BY CAST(REPLACE(`ï»¿CALL_ID`, ',', '') AS UNSIGNED) DESC LIMIT 500"
 
-
-
-
-        # ✅ FIXED ORDER BY
-# ---- ORDER & LIMIT (SAFE) ----
-            if params:
-               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
-            else:
-               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 100"
-     
-            cursor.execute(sql, params)
-            rows = cursor.fetchall()
-
-        cursor.execute(sql, params)
-        rows = cursor.fetchall()
-
-        cursor.close()
+        db = get_db()
+        cur = db.cursor(dictionary=True)
+        cur.execute(sql, params)
+        rows = cur.fetchall()
+        cur.close()
         db.close()
 
         return jsonify(rows)
@@ -121,8 +103,7 @@ def search_tickets():
 
 
 # -----------------------------
-# RUN (RENDER SAFE)
+# RUN
 # -----------------------------
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
