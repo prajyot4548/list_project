@@ -33,22 +33,15 @@ def get_db():
     )
 
 # -----------------------------
-# CLEAN TEXT
-# -----------------------------
-def clean_problem_text(text):
-    text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
-    return " ".join(text.split()).lower()
-
-# -----------------------------
 # SEARCH API
 # -----------------------------
 @app.route("/api/tickets/search", methods=["GET"])
 def search_tickets():
     try:
-        problem   = request.args.get("problem", "").strip()
-        product   = request.args.get("product", "").strip()
-        program   = request.args.get("program", "").strip()
-        bankName  = request.args.get("bankName", "").strip()
+        problem   = request.args.get("problem", "").strip().lower()
+        product   = request.args.get("product", "").strip().lower()
+        program   = request.args.get("program", "").strip()   # NUMBER FROM UI
+        bankName  = request.args.get("bankName", "").strip().lower()
         ticketId  = request.args.get("ticketId", "").strip()
         fromDate  = request.args.get("fromDate", "").strip()
         toDate    = request.args.get("toDate", "").strip()
@@ -72,45 +65,42 @@ def search_tickets():
         """
         params = []
 
-        # ---- TICKET ID (SAFE) ----
+        # ---- TICKET ID ----
         if ticketId:
-            clean_ticket = re.sub(r"[^0-9]", "", ticketId)
-            sql += " AND TRIM(REPLACE(TICKET_ID, ',', '')) = %s"
-            params.append(clean_ticket)
+            sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
+            params.append(re.sub(r"[^0-9]", "", ticketId))
 
         # ---- BANK NAME ----
         if bankName:
             sql += " AND BANK_NAME IS NOT NULL AND LOWER(BANK_NAME) LIKE %s"
-            params.append(f"%{bankName.lower()}%")
+            params.append(f"%{bankName}%")
 
         # ---- PRODUCT ----
         if product:
             sql += " AND PRODUCT IS NOT NULL AND LOWER(PRODUCT) LIKE %s"
-            params.append(f"%{product.lower()}%")
+            params.append(f"%{product}%")
 
-        # ---- PROGRAM (NUMERIC SAFE) ----
+       
+   # ---- PROGRAM FIX (INT + TEXT SAFE) ----
         if program.isdigit():
-            sql += " AND PROGRAM = %s"
-            params.append(int(program))
+           sql += " AND CAST(PROGRAM AS CHAR) LIKE %s"
+           params.append(f"%{program}%")
 
-        # ---- PROBLEM SEARCH ----
+        # ---- PROBLEM TEXT ----
         if problem:
             for w in problem.split():
                 if len(w) >= 3:
                     sql += " AND CALL_DETAILS IS NOT NULL AND LOWER(CALL_DETAILS) LIKE %s"
                     params.append(f"%{w}%")
 
-        # ---- DATE FILTER (NULL SAFE) ----
+        # ---- DATE FILTER (MM-DD-YYYY SAFE) ----
         if fromDate:
             sql += """
             AND CALL_DATE IS NOT NULL
             AND STR_TO_DATE(
-                CASE
-                    WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
-                    ELSE CONCAT(CALL_DATE, ' 00:00:00')
-                END,
+                CONCAT(SUBSTRING(CALL_DATE,1,10),' 00:00:00'),
                 '%m-%d-%Y %H:%i:%s'
-            ) >= STR_TO_DATE(%s, '%Y-%m-%d')
+            ) >= STR_TO_DATE(%s,'%Y-%m-%d')
             """
             params.append(fromDate)
 
@@ -118,12 +108,9 @@ def search_tickets():
             sql += """
             AND CALL_DATE IS NOT NULL
             AND STR_TO_DATE(
-                CASE
-                    WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
-                    ELSE CONCAT(CALL_DATE, ' 23:59:59')
-                END,
+                CONCAT(SUBSTRING(CALL_DATE,1,10),' 23:59:59'),
                 '%m-%d-%Y %H:%i:%s'
-            ) <= STR_TO_DATE(%s, '%Y-%m-%d')
+            ) <= STR_TO_DATE(%s,'%Y-%m-%d')
             """
             params.append(toDate)
 
@@ -140,7 +127,6 @@ def search_tickets():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
 
 # -----------------------------
 # RUN
