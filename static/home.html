@@ -1081,12 +1081,18 @@ if (/^\d+$/.test(problemText)) {
       const params = new URLSearchParams();
 
       params.append("username", localStorage.getItem("loggedUser") || "Unknown");
+function addFilter(key, value) {
+  if (value !== undefined && value !== null && value.toString().trim() !== "") {
 
-      function addFilter(key, value) {
-        if (value !== undefined && value !== null && value.toString().trim() !== "") {
-          params.append(key, value.trim());
-        }
-      }
+    // 🔥 NORMALIZE TICKET ID (comma / no comma both work)
+    if (key === "ticketId") {
+      value = value.replace(/[^0-9]/g, "");
+    }
+
+    params.append(key, value.trim());
+  }
+}
+
 
       addFilter("fromDate", filters.fromDate);
       addFilter("toDate", filters.toDate);

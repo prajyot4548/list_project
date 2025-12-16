@@ -63,8 +63,9 @@ def search_tickets():
         params = []
 
         if ticketId:
-            sql += " AND TRIM(TICKET_ID) = %s"
-            params.append(ticketId)
+           sql += " AND REPLACE(TRIM(TICKET_ID), ',', '') = %s"
+           params.append(re.sub(r'[^0-9]', '', ticketId))
+
 
         if bankName:
             sql += " AND LOWER(BANK_NAME) LIKE %s"
