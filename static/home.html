@@ -959,7 +959,10 @@ const filters = {
   fromDate: document.getElementById("dateFilter").value || "",
   toDate: document.getElementById("callIdFilter").value || "",
   bankName: document.getElementById("bankNameFilter").value?.trim() || "",
-  ticketId: document.getElementById("ticketIdFilterInput").value?.trim() || "", // FIXED
+ticketId: document
+  .getElementById("ticketIdFilterInput")
+  .value.replace(/,/g, "")
+  .trim() || "",
 
 
 
@@ -1157,13 +1160,7 @@ if (filters.problem) {
         const progExact = filters.program.trim();
         tickets = tickets.filter(t => String(t.PROGRAM || "").trim() === progExact);
       }
-      // ✅ Ticket ID filter apply here
-if (filters.ticketId) {
-  tickets = tickets.filter(t => 
-    String(t.TICKET_ID || "").trim() === filters.ticketId
-  );
-}
-
+   
 
       const from = filters.fromDate ? new Date(filters.fromDate) : null;
       const to = filters.toDate ? new Date(filters.toDate) : null;
@@ -1248,6 +1245,7 @@ solutionBox.innerHTML =
 
 
 async function fetchTicketIdDirect(ticketId) {
+    ticketId = ticketId.replace(/,/g, "");
     solutionBox.innerHTML = "<p>🔍 Searching Ticket ID...</p>";
 
     try {

@@ -63,8 +63,12 @@ def search_tickets():
         params = []
 
         if ticketId:
-            sql += " AND TRIM(TICKET_ID) = %s"
-            params.append(ticketId)
+    # remove commas from user input
+           clean_ticket = ticketId.replace(",", "").strip()
+
+    # compare after removing commas from DB value
+           sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
+           params.append(clean_ticket)
 
         if bankName:
             sql += " AND LOWER(BANK_NAME) LIKE %s"
@@ -103,9 +107,7 @@ def search_tickets():
             else:
                sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 100"
      
-            cursor.execute(sql, params)
-            rows = cursor.fetchall()
-
+         
         cursor.execute(sql, params)
         rows = cursor.fetchall()
 
