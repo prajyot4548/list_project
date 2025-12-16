@@ -29,7 +29,8 @@ def get_db():
         password=os.environ.get("DB_PASSWORD"),
         database=os.environ.get("DB_NAME"),
         port=int(os.environ.get("DB_PORT")),
-        connection_timeout=10
+        connection_timeout=5,
+        autocommit=True
     )
 
 # -----------------------------
@@ -38,6 +39,13 @@ def get_db():
 def clean_problem_text(text):
     text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
     return " ".join(text.split()).lower()
+
+# -----------------------------
+# NORMALIZE TICKET ID
+# -----------------------------
+def normalize_ticket_id(ticket_id):
+    # removes commas, spaces, symbols
+    return re.sub(r"[^0-9]", "", ticket_id)
 
 # -----------------------------
 # SEARCH API
@@ -56,56 +64,61 @@ def search_tickets():
         if problem:
             problem = clean_problem_text(problem)
 
+        if ticketId:
+            ticketId = normalize_ticket_id(ticketId)
+
         db = get_db()
         cursor = db.cursor(dictionary=True)
 
+        # -----------------------------
+        # BASE QUERY
+        # -----------------------------
         sql = "SELECT * FROM solutions.support_data WHERE 1=1"
         params = []
 
+        # -----------------------------
+        # FAST: TICKET ID SEARCH
+        # -----------------------------
         if ticketId:
-            sql += " AND TRIM(TICKET_ID) = %s"
+            sql += " AND REPLACE(TRIM(TICKET_ID), ',', '') = %s"
             params.append(ticketId)
+            sql += " ORDER BY CALL_ID DESC LIMIT 1"
 
-        if bankName:
-            sql += " AND LOWER(BANK_NAME) LIKE %s"
-            params.append(f"%{bankName.lower()}%")
+        else:
+            # -----------------------------
+            # NORMAL FILTERS
+            # -----------------------------
+            if bankName:
+                sql += " AND BANK_NAME LIKE %s"
+                params.append(f"%{bankName}%")
 
-        if product:
-            sql += " AND LOWER(PRODUCT) LIKE %s"
-            params.append(f"%{product.lower()}%")
+            if product:
+                sql += " AND PRODUCT LIKE %s"
+                params.append(f"%{product}%")
 
-        if program:
-            sql += " AND PROGRAM = %s"
-            params.append(program)
+            if program:
+                sql += " AND PROGRAM = %s"
+                params.append(program)
 
-        if problem:
-            for w in problem.split():
-                if len(w) >= 3:
-                    sql += " AND LOWER(CALL_DETAILS) LIKE %s"
-                    params.append(f"%{w}%")
+            if fromDate:
+                sql += " AND CALL_DATE >= %s"
+                params.append(fromDate)
 
-        if fromDate:
-            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') >= STR_TO_DATE(%s,'%Y-%m-%d')"
-            params.append(fromDate)
+            if toDate:
+                sql += " AND CALL_DATE <= %s"
+                params.append(toDate)
 
-        if toDate:
-            sql += " AND STR_TO_DATE(CALL_DATE,'%m-%d-%Y') <= STR_TO_DATE(%s,'%Y-%m-%d')"
-            params.append(toDate)
+            if problem:
+                for w in problem.split():
+                    if len(w) >= 3:
+                        sql += " AND CALL_DETAILS LIKE %s"
+                        params.append(f"%{w}%")
 
+            sql += " ORDER BY CALL_ID DESC LIMIT 200"
 
-
-
-
-        # ✅ FIXED ORDER BY
-# ---- ORDER & LIMIT (SAFE) ----
-            if params:
-               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
-            else:
-               sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 100"
-     
-            cursor.execute(sql, params)
-            rows = cursor.fetchall()
-
+        # -----------------------------
+        # EXECUTE ONCE ONLY
+        # -----------------------------
         cursor.execute(sql, params)
         rows = cursor.fetchall()
 
@@ -117,7 +130,6 @@ def search_tickets():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
 
 # -----------------------------
 # RUN (RENDER SAFE)
