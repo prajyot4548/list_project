@@ -1151,12 +1151,6 @@ if (filters.problem) {
 
 
 
-
-      // Program filter on PROGRAM column (numeric code)
-      if (filters.program) {
-        const progExact = filters.program.trim();
-        tickets = tickets.filter(t => String(t.PROGRAM || "").trim() === progExact);
-      }
  
 
 
@@ -1193,10 +1187,14 @@ highlightFirstTicket();
 
 
     } catch (err) {
-      console.error("❌ Fetch Error:", err);
-solutionBox.innerHTML =
-  `<p style="color:red;">⚠️ Server error. Please check logs.</p>`;
-    }
+  console.error("❌ Fetch Error:", err);
+  solutionBox.innerHTML = `
+    <div style="padding:12px; background:#f8d7da; border-radius:10px; border:1px solid #dc3545;">
+      <strong>⚠ Unable to fetch data.</strong><br/>
+      Please adjust filters or try again.
+    </div>
+  `;
+}
   }
 
 

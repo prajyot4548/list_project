@@ -53,76 +53,81 @@ def search_tickets():
         fromDate  = request.args.get("fromDate", "").strip()
         toDate    = request.args.get("toDate", "").strip()
 
-        if problem:
-            problem = clean_problem_text(problem)
-
         db = get_db()
         cursor = db.cursor(dictionary=True)
 
-        sql = "SELECT `ï»¿CALL_ID`,TICKET_ID, CALL_DATE, BANK_NAME, PRODUCT, PROGRAM, CALL_DETAILS, SOLUTION_DETAILS, QUEUE FROM solutions.support_data WHERE 1=1"
+        sql = """
+        SELECT
+            `ï»¿CALL_ID`,
+            TICKET_ID,
+            CALL_DATE,
+            BANK_NAME,
+            PRODUCT,
+            PROGRAM,
+            CALL_DETAILS,
+            SOLUTION_DETAILS,
+            QUEUE
+        FROM solutions.support_data
+        WHERE 1=1
+        """
         params = []
 
-        # ---- TICKET ID (comma / no comma safe) ----
+        # ---- TICKET ID (SAFE) ----
         if ticketId:
             clean_ticket = re.sub(r"[^0-9]", "", ticketId)
-            sql += " AND REPLACE(TICKET_ID, ',', '') = %s"
+            sql += " AND TRIM(REPLACE(TICKET_ID, ',', '')) = %s"
             params.append(clean_ticket)
 
         # ---- BANK NAME ----
         if bankName:
-            sql += " AND LOWER(BANK_NAME) LIKE %s"
+            sql += " AND BANK_NAME IS NOT NULL AND LOWER(BANK_NAME) LIKE %s"
             params.append(f"%{bankName.lower()}%")
 
         # ---- PRODUCT ----
         if product:
-            sql += " AND LOWER(PRODUCT) LIKE %s"
+            sql += " AND PRODUCT IS NOT NULL AND LOWER(PRODUCT) LIKE %s"
             params.append(f"%{product.lower()}%")
 
-        # ---- PROGRAM ----
-        if program:
+        # ---- PROGRAM (NUMERIC SAFE) ----
+        if program.isdigit():
             sql += " AND PROGRAM = %s"
-            params.append(program)
+            params.append(int(program))
 
-
-# ---- PROBLEM SEARCH ----
+        # ---- PROBLEM SEARCH ----
         if problem:
-           for w in problem.split():
-               if len(w) >= 3:
-                  sql += " AND LOWER(CALL_DETAILS) LIKE %s"
-                  params.append(f"%{w}%")
+            for w in problem.split():
+                if len(w) >= 3:
+                    sql += " AND CALL_DETAILS IS NOT NULL AND LOWER(CALL_DETAILS) LIKE %s"
+                    params.append(f"%{w}%")
 
-# ---- DATE FILTER (MM-DD-YYYY WITH TIME SAFE) ----
-        # ---- DATE FILTER (MM-DD-YYYY WITH / WITHOUT TIME SAFE) ----
+        # ---- DATE FILTER (NULL SAFE) ----
         if fromDate:
-           sql += """
-        AND STR_TO_DATE(
-            CASE
-                WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
-                ELSE CONCAT(CALL_DATE, ' 00:00:00')
-            END,
-            '%m-%d-%Y %H:%i:%s'
-        ) >= STR_TO_DATE(%s, '%Y-%m-%d')
-    """
-           params.append(fromDate)
+            sql += """
+            AND CALL_DATE IS NOT NULL
+            AND STR_TO_DATE(
+                CASE
+                    WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
+                    ELSE CONCAT(CALL_DATE, ' 00:00:00')
+                END,
+                '%m-%d-%Y %H:%i:%s'
+            ) >= STR_TO_DATE(%s, '%Y-%m-%d')
+            """
+            params.append(fromDate)
 
         if toDate:
-           sql += """
-        AND STR_TO_DATE(
-            CASE
-                WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
-                ELSE CONCAT(CALL_DATE, ' 23:59:59')
-            END,
-            '%m-%d-%Y %H:%i:%s'
-        ) <= STR_TO_DATE(%s, '%Y-%m-%d')
-    """
-           params.append(toDate)
+            sql += """
+            AND CALL_DATE IS NOT NULL
+            AND STR_TO_DATE(
+                CASE
+                    WHEN CALL_DATE LIKE '%:%' THEN CALL_DATE
+                    ELSE CONCAT(CALL_DATE, ' 23:59:59')
+                END,
+                '%m-%d-%Y %H:%i:%s'
+            ) <= STR_TO_DATE(%s, '%Y-%m-%d')
+            """
+            params.append(toDate)
 
-
-        # ---- ORDER + LIMIT ----
-        if params:
-            sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
-        else:
-            sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 100"
+        sql += " ORDER BY `ï»¿CALL_ID` DESC LIMIT 500"
 
         cursor.execute(sql, params)
         rows = cursor.fetchall()
@@ -132,9 +137,9 @@ def search_tickets():
 
         return jsonify(rows)
 
-    except Exception:
+    except Exception as e:
         traceback.print_exc()
-        return jsonify({"error": "Backend error"}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 # -----------------------------
